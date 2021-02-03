@@ -17,8 +17,21 @@ fi
 NCPUS=${RPM_BUILD_NCPUS:-1}
 
 notefile=$(mktemp --tmpdir rpm.version.note.XXXXXXXXXX)
-echo "rpm:$version" >$notefile
-cmd="objcopy --add-section .package.version=$notefile --set-section-flags .package.version=noload,readonly"
+
+# include/elf/common.h:#define NT_VERSION 1       /* Contains a version string.  */
+
+python3 -c "
+name = 'gnu.package-version'.encode()
+version = 'rpm:$version'.encode()
+NT_VERSION = 1
+ln = len(name)
+lv = len(version)
+pad = lambda s: [0] * ((len(s) + 4) // 4 * 4 - len(s))
+note = bytes([ln+1, 0, 0, 0, lv+1, 0, 0, 0, NT_VERSION, 0, 0, 0, *name, *pad(name), *version, *pad(version)])
+with open('$notefile', 'wb') as f: f.write(note)
+"
+
+cmd="objcopy --add-section .notes.package-version=$notefile --set-section-flags .notes.package-version=noload,readonly"
 
 # Add note to all ELF binaries
 find "$RPM_BUILD_ROOT" -type f \( -perm -0100 -or -perm -0010 -or -perm -0001 \) \
