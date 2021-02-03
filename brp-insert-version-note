@@ -1,0 +1,29 @@
+#!/bin/sh
+set -ex
+
+echo "args:" "$@"
+
+# If using normal root, avoid changing anything.
+if [ -z "$RPM_BUILD_ROOT" ] || [ "$RPM_BUILD_ROOT" = "/" ]; then
+    exit 0
+fi
+
+version="$1"
+if [ -z "$1" ]; then
+    echo "version argument missing" >&2
+    exit 2
+fi
+
+NCPUS=${RPM_BUILD_NCPUS:-1}
+
+notefile=$(mktemp --tmpdir rpm.version.note.XXXXXXXXXX)
+echo "rpm:$version" >$notefile
+cmd="objcopy --add-section .package.version=$notefile --set-section-flags .package.version=noload,readonly"
+
+# Add note to all ELF binaries
+find "$RPM_BUILD_ROOT" -type f \( -perm -0100 -or -perm -0010 -or -perm -0001 \) \
+     \! -regex "${RPM_BUILD_ROOT}/*usr/lib/debug.*" -print0 | \
+    xargs -0 -r -P$NCPUS -n32 sh -c \
+	  "file \"\$@\" | awk -F: '/ELF/ {print \$1}' | xargs -I\{\} $cmd \{\}" ARG0
+
+rm $notefile
