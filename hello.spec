@@ -1,6 +1,8 @@
+%bcond_without notes
+
 Name:		hello
 Version:	0
-Release:	1%{?dist}
+Release:	1%{?dist}%{!?with_notes:.nonotes}
 Summary:	Aloha!
 
 License:	CC-0
@@ -8,12 +10,15 @@ License:	CC-0
 BuildRequires:	gcc
 
 Source0:        brp-insert-version-note
+
+%if %{with notes}
 %global __brp_insert_version_note %{SOURCE0} '%{name}-%{VERSION}-%{RELEASE}.%{_arch}'
 
 %global __os_install_post \
   %__os_install_post \
   %__brp_insert_version_note \
   %nil
+%endif
 
 %description
 Test with:
