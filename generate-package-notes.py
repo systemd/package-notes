@@ -1,52 +1,85 @@
 #!/usr/bin/env python3
 
 """
-$ ./generate-package-notes.py --package-type rpm --package-name systemd --package-version 248~rc2-1.fc34 --vendor-type https://fedoraproject.org/ --vendor-name Fedora --vendor-version 34
+$ ./generate-package-notes.py --package-type rpm --package-name systemd --package-version 248~rc2-1.fc34 --cpe 'cpe:/o:fedoraproject:fedora:33'
 SECTIONS
 {
     .note.package ALIGN(8): {
         BYTE(0x04) BYTE(0x00) BYTE(0x00) BYTE(0x00) /* Length of Owner including NUL */
-        BYTE(0x17) BYTE(0x00) BYTE(0x00) BYTE(0x00) /* Length of Value including NUL */
+        BYTE(0x75) BYTE(0x00) BYTE(0x00) BYTE(0x00) /* Length of Value including NUL */
         BYTE(0x00) BYTE(0x33) BYTE(0xdd) BYTE(0x7a) /* Note ID */
-        BYTE(0x72) BYTE(0x70) BYTE(0x6d) BYTE(0x00) /* Owner: 'rpm\x00' */
-        BYTE(0x73) BYTE(0x79) BYTE(0x73) BYTE(0x74) /* Value: 'systemd\x00248~rc2-1.fc34\x00\x00' */
-        BYTE(0x65) BYTE(0x6d) BYTE(0x64) BYTE(0x00)
-        BYTE(0x32) BYTE(0x34) BYTE(0x38) BYTE(0x7e)
-        BYTE(0x72) BYTE(0x63) BYTE(0x32) BYTE(0x2d)
-        BYTE(0x31) BYTE(0x2e) BYTE(0x66) BYTE(0x63)
-        BYTE(0x33) BYTE(0x34) BYTE(0x00) BYTE(0x00)
-    }
-    .note.package.vendor ALIGN(8): {
-        BYTE(0x1b) BYTE(0x00) BYTE(0x00) BYTE(0x00) /* Length of Owner including NUL */
-        BYTE(0x0a) BYTE(0x00) BYTE(0x00) BYTE(0x00) /* Length of Value including NUL */
-        BYTE(0x00) BYTE(0x33) BYTE(0xdd) BYTE(0x7a) /* Note ID */
-        BYTE(0x68) BYTE(0x74) BYTE(0x74) BYTE(0x70) /* Owner: 'https://fedoraproject.org/\x00\x00' */
-        BYTE(0x73) BYTE(0x3a) BYTE(0x2f) BYTE(0x2f)
-        BYTE(0x66) BYTE(0x65) BYTE(0x64) BYTE(0x6f)
-        BYTE(0x72) BYTE(0x61) BYTE(0x70) BYTE(0x72)
-        BYTE(0x6f) BYTE(0x6a) BYTE(0x65) BYTE(0x63)
-        BYTE(0x74) BYTE(0x2e) BYTE(0x6f) BYTE(0x72)
-        BYTE(0x67) BYTE(0x2f) BYTE(0x00) BYTE(0x00)
-        BYTE(0x46) BYTE(0x65) BYTE(0x64) BYTE(0x6f) /* Value: 'Fedora\x0034\x00\x00\x00' */
-        BYTE(0x72) BYTE(0x61) BYTE(0x00) BYTE(0x33)
-        BYTE(0x34) BYTE(0x00) BYTE(0x00) BYTE(0x00)
+        BYTE(0x54) BYTE(0x42) BYTE(0x44) BYTE(0x00) /* Owner: 'TBD\x00' */
+        BYTE(0x7b) BYTE(0x22) BYTE(0x70) BYTE(0x61) /* Value: '{"package-type":"rpm","package":"systemd","package-version":"248~rc2-1.fc34","cpe":"cpe:/o:fedoraproject:fedora:33"}\x00\x00\x00\x00' */
+        BYTE(0x63) BYTE(0x6b) BYTE(0x61) BYTE(0x67)
+        BYTE(0x65) BYTE(0x2d) BYTE(0x74) BYTE(0x79)
+        BYTE(0x70) BYTE(0x65) BYTE(0x22) BYTE(0x3a)
+        BYTE(0x22) BYTE(0x72) BYTE(0x70) BYTE(0x6d)
+        BYTE(0x22) BYTE(0x2c) BYTE(0x22) BYTE(0x70)
+        BYTE(0x61) BYTE(0x63) BYTE(0x6b) BYTE(0x61)
+        BYTE(0x67) BYTE(0x65) BYTE(0x22) BYTE(0x3a)
+        BYTE(0x22) BYTE(0x73) BYTE(0x79) BYTE(0x73)
+        BYTE(0x74) BYTE(0x65) BYTE(0x6d) BYTE(0x64)
+        BYTE(0x22) BYTE(0x2c) BYTE(0x22) BYTE(0x70)
+        BYTE(0x61) BYTE(0x63) BYTE(0x6b) BYTE(0x61)
+        BYTE(0x67) BYTE(0x65) BYTE(0x2d) BYTE(0x76)
+        BYTE(0x65) BYTE(0x72) BYTE(0x73) BYTE(0x69)
+        BYTE(0x6f) BYTE(0x6e) BYTE(0x22) BYTE(0x3a)
+        BYTE(0x22) BYTE(0x32) BYTE(0x34) BYTE(0x38)
+        BYTE(0x7e) BYTE(0x72) BYTE(0x63) BYTE(0x32)
+        BYTE(0x2d) BYTE(0x31) BYTE(0x2e) BYTE(0x66)
+        BYTE(0x63) BYTE(0x33) BYTE(0x34) BYTE(0x22)
+        BYTE(0x2c) BYTE(0x22) BYTE(0x63) BYTE(0x70)
+        BYTE(0x65) BYTE(0x22) BYTE(0x3a) BYTE(0x22)
+        BYTE(0x63) BYTE(0x70) BYTE(0x65) BYTE(0x3a)
+        BYTE(0x2f) BYTE(0x6f) BYTE(0x3a) BYTE(0x66)
+        BYTE(0x65) BYTE(0x64) BYTE(0x6f) BYTE(0x72)
+        BYTE(0x61) BYTE(0x70) BYTE(0x72) BYTE(0x6f)
+        BYTE(0x6a) BYTE(0x65) BYTE(0x63) BYTE(0x74)
+        BYTE(0x3a) BYTE(0x66) BYTE(0x65) BYTE(0x64)
+        BYTE(0x6f) BYTE(0x72) BYTE(0x61) BYTE(0x3a)
+        BYTE(0x33) BYTE(0x33) BYTE(0x22) BYTE(0x7d)
+        BYTE(0x00) BYTE(0x00) BYTE(0x00) BYTE(0x00)
     }
 }
 INSERT AFTER .note.gnu.build-id;
 """
 
 import argparse
+import simplejson as json
+import re
+
+def read_os_release(field):
+    try:
+        f = open('/etc/os-release')
+    except FileNotFoundError:
+        f = open('/usr/lib/os-release')
+
+    prefix = f'{field}='
+    for line in f:
+        if line.startswith(prefix):
+            break
+    else:
+        return None
+
+    value = line.rstrip().removeprefix(prefix)
+    if value[0] in '"\'' and value[0] == value[-1]:
+        value = value[1:-1]
+
+    return value
 
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument('--package-type', default='package')
     p.add_argument('--package-name')
     p.add_argument('--package-version')
-    p.add_argument('--vendor-type', default='vendor')
-    p.add_argument('--vendor-name')
-    p.add_argument('--vendor-version')
+    p.add_argument('--cpe')
 
-    return p.parse_args()
+    opts = p.parse_args()
+
+    if opts.cpe is None:
+        opts.cpe = read_os_release('CPE_NAME')
+
+    return opts
 
 def encode_bytes(arr):
     return ' '.join(f'BYTE(0x{n:02x})' for n in arr)
@@ -88,18 +121,29 @@ def encode_note(note_name, note_id, owner, value, prefix=''):
 
 NOTE_ID = [0x00, 0x33, 0xDD, 0x7A]
 
-def generate_sections(opts):
-    s1 = encode_note('package',        NOTE_ID, opts.package_type,
-                     f'{opts.package_name}\0{opts.package_version}', prefix='    ')
-    s2 = encode_note('package.vendor', NOTE_ID, opts.vendor_type,
-                     f'{opts.vendor_name}\0{opts.vendor_version}', prefix='    ')
+def json_serialize(s):
+    return json.dumps(s,
+                      ensure_ascii=False,
+                      separators=(',', ':'))
+
+def generate_section(opts):
+    data = {
+        'package-type':    opts.package_type,
+        'package':         opts.package_name,
+        'package-version': opts.package_version,
+    }
+    if opts.cpe:
+        data['cpe'] = opts.cpe
+
+    json = json_serialize(data)
+
+    section = encode_note('package', NOTE_ID, 'TBD', json, prefix='    ')
     return ['SECTIONS', '{',
-            *s1,
-            *s2,
+            *section,
             '}', 'INSERT AFTER .note.gnu.build-id;']
 
 if __name__ == '__main__':
     opts = parse_args()
-    lines = generate_sections(opts)
+    lines = generate_section(opts)
 
     print('\n'.join(lines))
