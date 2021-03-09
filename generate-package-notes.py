@@ -73,11 +73,20 @@ def parse_args():
     p.add_argument('--package-name')
     p.add_argument('--package-version')
     p.add_argument('--cpe')
+    p.add_argument('--rpm', metavar='NEVRA')
 
     opts = p.parse_args()
 
     if opts.cpe is None:
         opts.cpe = read_os_release('CPE_NAME')
+
+    if opts.rpm:
+        split = re.match('(.*?)-([0-9].*)', opts.rpm)
+        if not split:
+            raise ValueError(f'{opts.rpm!r} does not seem to be a valid package name')
+        opts.package_type = 'rpm'
+        opts.package_name = split.group(1)
+        opts.package_version = split.group(2)
 
     return opts
 
