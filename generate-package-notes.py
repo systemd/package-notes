@@ -8,7 +8,7 @@ SECTIONS
         BYTE(0x04) BYTE(0x00) BYTE(0x00) BYTE(0x00) /* Length of Owner including NUL */
         BYTE(0x73) BYTE(0x00) BYTE(0x00) BYTE(0x00) /* Length of Value including NUL */
         BYTE(0x7e) BYTE(0x1a) BYTE(0xfe) BYTE(0xca) /* Note ID */
-        BYTE(0x54) BYTE(0x42) BYTE(0x44) BYTE(0x00) /* Owner: 'TBD\x00' */
+        BYTE(0x46) BYTE(0x44) BYTE(0x4f) BYTE(0x00) /* Owner: 'FDO\x00' */
         BYTE(0x7b) BYTE(0x22) BYTE(0x70) BYTE(0x61) /* Value: '{"packageType":"rpm","package":"systemd","packageVersion":"248~rc2-1.fc34","cpe":"cpe:/o:fedoraproject:fedora:33"}\x00\x00' */
         BYTE(0x63) BYTE(0x6b) BYTE(0x61) BYTE(0x67)
         BYTE(0x65) BYTE(0x54) BYTE(0x79) BYTE(0x70)
@@ -145,7 +145,7 @@ def generate_section(opts):
 
     json = json_serialize(data)
 
-    section = encode_note('package', NOTE_ID, 'TBD', json, prefix='    ')
+    section = encode_note('package', NOTE_ID, 'FDO', json, prefix='    ')
     return ['SECTIONS', '{',
             *section,
             '}', 'INSERT AFTER .note.gnu.build-id;']
