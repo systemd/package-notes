@@ -49,7 +49,7 @@ def read_os_release(field):
     except FileNotFoundError:
         f = open('/usr/lib/os-release')
 
-    prefix = f'{field}='
+    prefix = '{}='.format(field)
     for line in f:
         if line.startswith(prefix):
             break
@@ -78,7 +78,7 @@ def parse_args():
     if opts.rpm:
         split = re.match('(.*?)-([0-9].*)', opts.rpm)
         if not split:
-            raise ValueError(f'{opts.rpm!r} does not seem to be a valid package name')
+            raise ValueError('{!r} does not seem to be a valid package name'.format(opts.rpm))
         opts.package_type = 'rpm'
         opts.package_name = split.group(1)
         opts.package_version = split.group(2)
@@ -86,12 +86,12 @@ def parse_args():
     return opts
 
 def encode_bytes(arr):
-    return ' '.join(f'BYTE(0x{n:02x})' for n in arr)
+    return ' '.join('BYTE(0x{:02x})'.format(n) for n in arr)
 
 def encode_bytes_lines(arr, prefix='', label='string'):
     assert len(arr) % 4 == 0
     s = bytes(arr).decode()
-    yield prefix + encode_bytes(arr[:4]) + f' /* {label}: {s!r} */'
+    yield prefix + encode_bytes(arr[:4]) + ' /* {}: {!r} */'.format(label, s)
     for offset in range(4, len(arr), 4):
         yield prefix + encode_bytes(arr[offset:offset+4])
 
@@ -100,11 +100,11 @@ def encode_length(s, prefix='', label='string'):
     n1 = n % 0xFF
     n2 = n // 0xFF
     assert n2 < 0xFF
-    return prefix + encode_bytes([n1, n2, 0, 0]) + f' /* Length of {label} including NUL */'
+    return prefix + encode_bytes([n1, n2, 0, 0]) + ' /* Length of {} including NUL */'.format(label)
 
 def encode_note_id(arr, prefix=''):
     assert len(arr) == 4
-    return prefix + encode_bytes(arr) + f' /* Note ID */'
+    return prefix + encode_bytes(arr) + ' /* Note ID */'
 
 def pad_string(s):
     return [0] * ((len(s) + 4) // 4 * 4 - len(s))
@@ -119,7 +119,7 @@ def encode_note(note_name, note_id, owner, value, prefix=''):
     l3 = encode_note_id(note_id, prefix=prefix + '    ')
     l4 = encode_string(owner, prefix=prefix + '    ', label='Owner')
     l5 = encode_string(value, prefix=prefix + '    ', label='Value')
-    return [prefix + f'.note.{note_name} : ALIGN(4) {{',
+    return [prefix + '.note.{} : ALIGN(4) {{'.format(note_name),
             l1, l2, l3, *l4, *l5,
             prefix + '}']
 
