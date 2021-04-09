@@ -1,11 +1,11 @@
 %bcond_without notes
 
-Name:		hello
-Version:	0
-Release:	1%{?dist}%{!?with_notes:.nonotes}
-Summary:	Aloha!
+Name:           hello
+Version:        0
+Release:        1%{?dist}%{!?with_notes:.nonotes}
+Summary:        Aloha!
 
-License:	CC-0
+License:        CC0
 
 BuildRequires:  binutils
 BuildRequires:  gcc
