@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: CC0-1.0
 
 """
 $ ./generate-package-notes.py --package-type rpm --package-name systemd --package-version 248~rc2-1.fc34 --cpe 'cpe:/o:fedoraproject:fedora:33'
