@@ -139,6 +139,9 @@ def generate_section(opts):
     }
     if opts.cpe:
         data['osCpe'] = opts.cpe
+    else:
+        data['os'] = read_os_release('ID')
+        data['osVersion'] = read_os_release('VERSION_ID')
 
     json = json_serialize(data)
 
