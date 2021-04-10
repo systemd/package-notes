@@ -56,7 +56,8 @@ def read_os_release(field):
     else:
         return None
 
-    value = line.rstrip().removeprefix(prefix)
+    value = line.rstrip()
+    value = value[value.startswith(prefix) and len(prefix):]
     if value[0] in '"\'' and value[0] == value[-1]:
         value = value[1:-1]
 
