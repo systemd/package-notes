@@ -1,0 +1,5 @@
+package-notes (0.1) unstable; urgency=medium
+
+  * Initial packaging
+
+ -- Luca Boccassi <bluca@debian.org>  Fri, 09 Apr 2021 21:19:12 +0000
