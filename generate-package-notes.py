@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: CC0-1.0
 
 """
 $ ./generate-package-notes.py --package-type rpm --package-name systemd --package-version 248~rc2-1.fc34 --cpe 'cpe:/o:fedoraproject:fedora:33'
@@ -56,7 +57,8 @@ def read_os_release(field):
     else:
         return None
 
-    value = line.rstrip().removeprefix(prefix)
+    value = line.rstrip()
+    value = value[value.startswith(prefix) and len(prefix):]
     if value[0] in '"\'' and value[0] == value[-1]:
         value = value[1:-1]
 
@@ -138,6 +140,9 @@ def generate_section(opts):
     }
     if opts.cpe:
         data['osCpe'] = opts.cpe
+    else:
+        data['os'] = read_os_release('ID')
+        data['osVersion'] = read_os_release('VERSION_ID')
 
     json = json_serialize(data)
 
