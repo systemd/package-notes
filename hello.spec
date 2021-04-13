@@ -22,6 +22,7 @@ objdump -s -j .note.package %{_libdir}/libhello.so
 
 %prep
 %setup -cT
+set -eo pipefail
 
 cat <<EOF >libhello.c
 const char* greeting(void) {
@@ -43,6 +44,8 @@ python3 %{SOURCE0} --rpm '%{name}-%{VERSION}-%{RELEASE}.%{_arch}' | \
 %endif
 
 %build
+set -eo pipefail
+
 LDFLAGS="%{build_ldflags} %{?with_notes:-Wl,-T,$PWD/notes.ld}"
 CFLAGS="%{build_cflags}"
 
@@ -50,10 +53,14 @@ gcc -Wall -fPIC -o libhello.so -shared libhello.c $CFLAGS $LDFLAGS
 gcc -Wall -o hello hello.c libhello.so $CFLAGS $LDFLAGS
 
 %install
+set -eo pipefail
+
 install -Dt %{buildroot}%{_libdir}/ libhello.so
 install -Dt %{buildroot}%{_bindir}/ hello
 
 %check
+set -eo pipefail
+
 %if %{with notes}
 objdump -s -j .note.package ./hello
 objdump -s -j .note.package ./libhello.so
