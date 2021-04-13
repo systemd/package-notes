@@ -12,6 +12,7 @@ License:        CC0
 BuildRequires:  binutils
 BuildRequires:  gcc
 BuildRequires:  python3
+BuildRequires:  python3-simplejson
 
 Source0:        generate-package-notes.py
 
