@@ -71,6 +71,7 @@ def parse_args():
     p.add_argument('--package-version')
     p.add_argument('--cpe')
     p.add_argument('--rpm', metavar='NEVRA')
+    p.add_argument('--debug-info-url')
 
     opts = p.parse_args()
 
@@ -143,6 +144,8 @@ def generate_section(opts):
     else:
         data['os'] = read_os_release('ID')
         data['osVersion'] = read_os_release('VERSION_ID')
+    if opts.debug_info_url:
+        data['debugInfoUrl'] = opts.debug_info_url;
 
     json = json_serialize(data)
 
