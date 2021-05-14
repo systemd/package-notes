@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Rules-Requires-Root: no
 Maintainer: Luca Boccassi <bluca@debian.org>
-Build-Depends: debhelper-compat (= 12)
+Build-Depends: debhelper-compat (= 12), dh-sequence-python3, dh-exec
 Standards-Version: 4.5.1
 Homepage: https://systemd.io/COREDUMP_PACKAGE_METADATA/
 Vcs-Git: https://github.com/systemd/package-notes.git
@@ -12,7 +12,7 @@ Vcs-Browser: https://github.com/systemd/package-notes
 Package: dh-package-notes
 Architecture: all
 Enhances: debhelper
-Depends: ${misc:Depends}, ${perl:Depends}, debhelper, python3:any
+Depends: ${misc:Depends}, ${perl:Depends}, debhelper, ${python3:Depends}
 Provides: dh-sequence-package-notes
 Description: Debian Helper for adding package metadata to ELF binaries
  Generate a linker script to add package metadata to the ELF binaries being

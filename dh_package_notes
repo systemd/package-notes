@@ -47,7 +47,7 @@ isnative( $dh{MAINPACKAGE} );    # Necessary to have $dh{VERSION}
 my $source_package = sourcepackage();
 my %options        = ( 'stdout' => "debian/.debhelper/notes.ld" );
 my @cmd            = (
-    "python3",           "/usr/share/debhelper/generate-package-notes.py",
+    "/usr/bin/generate-package-notes",
     "--package-type",    "deb",
     "--package-name",    ${source_package},
     "--package-version", $dh{VERSION},
