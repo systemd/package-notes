@@ -49,7 +49,8 @@ my @cmd            = (
     "python3",           "/usr/share/debhelper/generate-package-notes.py",
     "--package-type",    "deb",
     "--package-name",    ${source_package},
-    "--package-version", $dh{VERSION}
+    "--package-version", $dh{VERSION},
+    "--debug-info-url",  "https://debuginfod.debian.net"
 );
 
 if ( not mkdir("debian/.debhelper") ) {
