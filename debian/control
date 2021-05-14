@@ -13,6 +13,7 @@ Package: dh-package-notes
 Architecture: all
 Enhances: debhelper
 Depends: ${misc:Depends}, ${perl:Depends}, debhelper, python3:any
+Provides: dh-sequence-package-notes
 Description: Debian Helper for adding package metadata to ELF binaries
  Generate a linker script to add package metadata to the ELF binaries being
  built. See: https://systemd.io/COREDUMP_PACKAGE_METADATA/

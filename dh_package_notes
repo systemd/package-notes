@@ -32,6 +32,7 @@ B<debian/.debhelper/notes.ld> with the package type set to B<deb>, the package
 name and version set to the source package name and version respectively, and
 the B<os> and B<osVersion> fields set to the values of the B<ID> and
 B<VERSION_ID> fields found in B</etc/os-release>. Simply add
+B<dh-sequence-package-notes> to the Build-Depends or add
 B<--with package_notes> to the B<dh $@> call to make this happen.
 
 The package using B<dh_package_notes> also needs to manually set in debian/rules
