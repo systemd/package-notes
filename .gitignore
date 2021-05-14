@@ -1,3 +1,10 @@
 /*.src.rpm
-/*/
+/*/**
 /*.log
+!/debian/changelog
+!/debian/control
+!/debian/copyright
+!/debian/dh-package-notes.install
+!/debian/dh-package-notes.manpages
+!/debian/rules
+!/debian/source/format
