@@ -6,5 +6,6 @@
 !/debian/copyright
 !/debian/dh-package-notes.install
 !/debian/dh-package-notes.manpages
+!/debian/generate-package-notes.1
 !/debian/rules
 !/debian/source/format
