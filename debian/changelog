@@ -1,3 +1,16 @@
+package-notes (0.2) unstable; urgency=medium
+
+  [ Mark Wielaard ]
+  * generate-package-notes.py: Add --debuginfod argument
+
+  [ Victor Westerhuis ]
+  * Add Debian debuginfod server in dh_package_notes
+  * Provide dh-sequence-package_notes
+  * Fix Python installation
+  * Add manpage for generate-package-notes
+
+ -- Luca Boccassi <bluca@debian.org>  Sat, 15 May 2021 01:09:57 +0200
+
 package-notes (0.1) unstable; urgency=medium
 
   * Initial packaging
