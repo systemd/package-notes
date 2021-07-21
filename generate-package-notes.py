@@ -5,7 +5,7 @@
 $ ./generate-package-notes.py --package-type rpm --package-name systemd --package-version 248~rc2-1.fc34 --cpe 'cpe:/o:fedoraproject:fedora:33'
 SECTIONS
 {
-    .note.package : ALIGN(4) {
+    .note.package (READONLY) : ALIGN(4) {
         BYTE(0x04) BYTE(0x00) BYTE(0x00) BYTE(0x00) /* Length of Owner including NUL */
         BYTE(0x64) BYTE(0x00) BYTE(0x00) BYTE(0x00) /* Length of Value including NUL */
         BYTE(0x7e) BYTE(0x1a) BYTE(0xfe) BYTE(0xca) /* Note ID */
@@ -122,7 +122,7 @@ def encode_note(note_name, note_id, owner, value, prefix=''):
     l3 = encode_note_id(note_id, prefix=prefix + '    ')
     l4 = encode_string(owner, prefix=prefix + '    ', label='Owner')
     l5 = encode_string(value, prefix=prefix + '    ', label='Value')
-    return [prefix + '.note.{} : ALIGN(4) {{'.format(note_name),
+    return [prefix + '.note.{} (READONLY) : ALIGN(4) {{'.format(note_name),
             l1, l2, l3, *l4, *l5,
             prefix + '}']
 
