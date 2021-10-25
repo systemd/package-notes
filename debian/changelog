@@ -1,3 +1,10 @@
+package-notes (0.3) unstable; urgency=medium
+
+  * Add architecture field
+  * Skip fields without value
+
+ -- Luca Boccassi <bluca@debian.org>  Mon, 25 Oct 2021 22:32:27 +0100
+
 package-notes (0.2) unstable; urgency=medium
 
   [ Mark Wielaard ]
