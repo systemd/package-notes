@@ -137,7 +137,8 @@ def encode_note(note_name, note_id, owner, value, prefix=''):
 NOTE_ID = [0x7E, 0x1A, 0xFE, 0xCA]
 
 def json_serialize(s):
-    return json.dumps(s,
+    # Avoid taking space in the ELF header if there's no value to store
+    return json.dumps({k: v for k, v in s.items() if v is not None},
                       ensure_ascii=False,
                       separators=(',', ':'))
 
