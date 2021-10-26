@@ -73,6 +73,14 @@ to
 This defaults to the empty string, but for Debian packages it should
 be set to the Debian version of the binary package containing the binary.
 .TP
+.BI \-\-package\-architecture= ARCHITECTURE
+Set the key
+.I architecture
+to
+.IR ARCHITECTURE .
+This defaults to the empty string, but for Debian packages it should
+be set to the Debian architecture identifier of the binary.
+.TP
 .BI \-\-cpe= CPE
 Set the key
 .I osCpe
@@ -104,6 +112,7 @@ to
 Overrides
 .BR \-\-package\-type ,
 .BR \-\-package\-name ,
+.BR \-\-package\-architecture ,
 and
 .BR \-\-package\-version .
 .TP

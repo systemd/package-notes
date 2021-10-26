@@ -10,8 +10,8 @@ dh_package_notes - Add package metadata to ELF header
 use strict;
 use warnings;
 use Debian::Debhelper::Dh_Lib
-  qw(%dh doit init isnative sourcepackage);
-our $VERSION = '0.1';
+  qw(%dh doit hostarch init isnative sourcepackage);
+our $VERSION = '0.3';
 
 =head1 SYNOPSIS
 
@@ -45,11 +45,13 @@ init();
 
 isnative( $dh{MAINPACKAGE} );    # Necessary to have $dh{VERSION}
 my $source_package = sourcepackage();
+my $package_arch   = hostarch();
 my %options        = ( 'stdout' => "debian/.debhelper/notes.ld" );
 my @cmd            = (
     "/usr/bin/generate-package-notes",
     "--package-type",    "deb",
     "--package-name",    ${source_package},
+    "--package-architecture", ${package_arch},
     "--package-version", $dh{VERSION},
     "--debug-info-url",  "https://debuginfod.debian.net"
 );
