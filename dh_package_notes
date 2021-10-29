@@ -36,7 +36,7 @@ B<dh-sequence-package-notes> to the Build-Depends or add
 B<--with package_notes> to the B<dh $@> call to make this happen.
 
 The package using B<dh_package_notes> also needs to manually set in debian/rules
-B<export DEB_LDFLAGS_MAINT_APPEND = -Wl,-T,debian/.debhelper/notes.ld> as it is
+B<export DEB_LDFLAGS_MAINT_APPEND = -Wl,-dT,debian/.debhelper/notes.ld> as it is
 not possible to do so from a debhelper addon.
 
 =cut
@@ -64,8 +64,8 @@ doit( \%options, @cmd );
 
 # FIXME: neither of these work, so appending from each debian/rules file is
 # currently the only way to make this work, which is less than ideal
-#$ENV{'DEB_LDFLAGS_MAINT_APPEND'} .= ' -Wl,-T,debian/.debhelper/notes.ld';
-#$ENV{'LDFLAGS'}                  .= ' -Wl,-T,debian/.debhelper/notes.ld';
+#$ENV{'DEB_LDFLAGS_MAINT_APPEND'} .= ' -Wl,-dT,debian/.debhelper/notes.ld';
+#$ENV{'LDFLAGS'}                  .= ' -Wl,-dT,debian/.debhelper/notes.ld';
 
 =head1 SEE ALSO
 

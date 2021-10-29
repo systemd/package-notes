@@ -39,7 +39,7 @@ and hopefully shared among all vendors.
 .B generate\-package\-notes
 generates a linker script on standard output,
 which can then be used at build time via
-.I \%LDFLAGS="\-Wl,\-T,/path/to/generated/script"
+.I \%LDFLAGS="\-Wl,\-dT,/path/to/generated/script"
 to include the note in the binary.
 If a Debian package is built using the
 .BR dh (1)
