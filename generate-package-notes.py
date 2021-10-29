@@ -71,6 +71,15 @@ def read_os_release(field):
 
     return value
 
+def str_to_bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in {'yes', 'true', '1'}:
+        return True
+    if v.lower() in {'no', 'false', '0'}:
+        return False
+    raise argparse.ArgumentTypeError('"yes"/"true"/"1"/"no"/"false"/"0" expected')
+
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument('--package-type', default='package')
@@ -80,6 +89,7 @@ def parse_args():
     p.add_argument('--cpe')
     p.add_argument('--rpm', metavar='NEVRA')
     p.add_argument('--debug-info-url')
+    p.add_argument('--readonly', type=str_to_bool, default=True)
 
     opts = p.parse_args()
 
@@ -125,13 +135,15 @@ def encode_string(s, prefix='', label='string'):
     arr = list(s.encode()) + pad_string(s)
     yield from encode_bytes_lines(arr, prefix=prefix, label=label)
 
-def encode_note(note_name, note_id, owner, value, prefix=''):
+def encode_note(note_name, note_id, owner, value, readonly=True, prefix=''):
     l1 = encode_length(owner, prefix=prefix + '    ', label='Owner')
     l2 = encode_length(value, prefix=prefix + '    ', label='Value')
     l3 = encode_note_id(note_id, prefix=prefix + '    ')
     l4 = encode_string(owner, prefix=prefix + '    ', label='Owner')
     l5 = encode_string(value, prefix=prefix + '    ', label='Value')
-    return [prefix + '.note.{} (READONLY) : ALIGN(4) {{'.format(note_name),
+    readonly = '(READONLY) ' if readonly else ''
+
+    return [prefix + '.note.{} {}: ALIGN(4) {{'.format(note_name, readonly),
             l1, l2, l3, *l4, *l5,
             prefix + '}']
 
@@ -160,7 +172,7 @@ def generate_section(opts):
 
     json = json_serialize(data)
 
-    section = encode_note('package', NOTE_ID, 'FDO', json, prefix='    ')
+    section = encode_note('package', NOTE_ID, 'FDO', json, readonly=opts.readonly, prefix='    ')
     return ['SECTIONS', '{',
             *section,
             '}',
