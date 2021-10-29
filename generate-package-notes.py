@@ -44,6 +44,7 @@ SECTIONS
     }
 }
 INSERT AFTER .note.gnu.build-id;
+/* HINT: add -Wl,-dT,/path/to/this/file to $LDFLAGS */
 """
 
 import argparse
@@ -70,15 +71,35 @@ def read_os_release(field):
 
     return value
 
+def str_to_bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in {'yes', 'true', '1'}:
+        return True
+    if v.lower() in {'no', 'false', '0'}:
+        return False
+    raise argparse.ArgumentTypeError('"yes"/"true"/"1"/"no"/"false"/"0" expected')
+
 def parse_args():
     p = argparse.ArgumentParser()
-    p.add_argument('--package-type', default='package')
-    p.add_argument('--package-name')
-    p.add_argument('--package-version')
-    p.add_argument('--package-architecture')
-    p.add_argument('--cpe')
-    p.add_argument('--rpm', metavar='NEVRA')
-    p.add_argument('--debug-info-url')
+    p.add_argument('--package-type', metavar='TYPE',
+                   default='package',
+                   help='Specify the package type, e.g. "rpm" or "deb"')
+    p.add_argument('--package-name', metavar='NAME',
+                   help='The name of the package (e.g. "foo" or "libbar")')
+    p.add_argument('--package-version', metavar='VERSION',
+                   help='The full version of the package (e.g. 1.5-1.fc35.s390x)')
+    p.add_argument('--package-architecture', metavar='ARCH',
+                   help='The code architecture of the binaries (e.g. arm64 or s390x)')
+    p.add_argument('--cpe',
+                   help='NIST CPE identifier of the vendor operating system')
+    p.add_argument('--rpm', metavar='NEVRA',
+                   help='Extract type,name,version,architecture from a full rpm name')
+    p.add_argument('--debug-info-url', metavar='URL',
+                   help='URL of the debuginfod server where sources can be queried')
+    p.add_argument('--readonly', metavar='BOOL',
+                   type=str_to_bool, default=True,
+                   help='Make the notes section read-only (requires binutils 2.38)')
 
     opts = p.parse_args()
 
@@ -124,13 +145,15 @@ def encode_string(s, prefix='', label='string'):
     arr = list(s.encode()) + pad_string(s)
     yield from encode_bytes_lines(arr, prefix=prefix, label=label)
 
-def encode_note(note_name, note_id, owner, value, prefix=''):
+def encode_note(note_name, note_id, owner, value, readonly=True, prefix=''):
     l1 = encode_length(owner, prefix=prefix + '    ', label='Owner')
     l2 = encode_length(value, prefix=prefix + '    ', label='Value')
     l3 = encode_note_id(note_id, prefix=prefix + '    ')
     l4 = encode_string(owner, prefix=prefix + '    ', label='Owner')
     l5 = encode_string(value, prefix=prefix + '    ', label='Value')
-    return [prefix + '.note.{} (READONLY) : ALIGN(4) {{'.format(note_name),
+    readonly = '(READONLY) ' if readonly else ''
+
+    return [prefix + '.note.{} {}: ALIGN(4) {{'.format(note_name, readonly),
             l1, l2, l3, *l4, *l5,
             prefix + '}']
 
@@ -159,10 +182,12 @@ def generate_section(opts):
 
     json = json_serialize(data)
 
-    section = encode_note('package', NOTE_ID, 'FDO', json, prefix='    ')
+    section = encode_note('package', NOTE_ID, 'FDO', json, readonly=opts.readonly, prefix='    ')
     return ['SECTIONS', '{',
             *section,
-            '}', 'INSERT AFTER .note.gnu.build-id;']
+            '}',
+            'INSERT AFTER .note.gnu.build-id;',
+            '/* HINT: add -Wl,-dT,/path/to/this/file to $LDFLAGS */']
 
 if __name__ == '__main__':
     opts = parse_args()

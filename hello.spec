@@ -11,6 +11,7 @@ License:        CC0
 
 BuildRequires:  binutils
 BuildRequires:  gcc
+BuildRequires:  rpmdevtools
 BuildRequires:  python3
 BuildRequires:  python3-simplejson
 
@@ -39,15 +40,23 @@ int main() {
 }
 EOF
 
-%if %{with notes}
-python3 %{SOURCE0} --rpm '%{name}-%{VERSION}-%{RELEASE}.%{_arch}' | \
-        tee notes.ld
-%endif
-
 %build
 set -eo pipefail
 
-LDFLAGS="%{build_ldflags} %{?with_notes:-Wl,-T,$PWD/notes.ld}"
+ld_version="$(ld --version | sed -r -n '1 {s/.*version (.*)/\1/p}')"
+set +e
+rpmdev-vercmp "$ld_version" "2.38" >/dev/null
+if [ $? == 12 ]; then
+  readonly="--readonly=no"
+fi
+set -e
+
+%if %{with notes}
+python3 %{SOURCE0} $readonly --rpm '%{name}-%{VERSION}-%{RELEASE}.%{_arch}' | \
+        tee notes.ld
+%endif
+
+LDFLAGS="%{build_ldflags} %{?with_notes:-Wl,-dT,$PWD/notes.ld}"
 CFLAGS="%{build_cflags}"
 
 gcc -Wall -fPIC -o libhello.so -shared libhello.c $CFLAGS $LDFLAGS
