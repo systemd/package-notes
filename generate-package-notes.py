@@ -44,6 +44,7 @@ SECTIONS
     }
 }
 INSERT AFTER .note.gnu.build-id;
+/* HINT: add -Wl,-T,/path/to/this/file to $LDFLAGS */
 """
 
 import argparse
@@ -162,7 +163,9 @@ def generate_section(opts):
     section = encode_note('package', NOTE_ID, 'FDO', json, prefix='    ')
     return ['SECTIONS', '{',
             *section,
-            '}', 'INSERT AFTER .note.gnu.build-id;']
+            '}',
+            'INSERT AFTER .note.gnu.build-id;',
+            '/* HINT: add -Wl,-T,/path/to/this/file to $LDFLAGS */']
 
 if __name__ == '__main__':
     opts = parse_args()
