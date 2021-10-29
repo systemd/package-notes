@@ -82,14 +82,24 @@ def str_to_bool(v):
 
 def parse_args():
     p = argparse.ArgumentParser()
-    p.add_argument('--package-type', default='package')
-    p.add_argument('--package-name')
-    p.add_argument('--package-version')
-    p.add_argument('--package-architecture')
-    p.add_argument('--cpe')
-    p.add_argument('--rpm', metavar='NEVRA')
-    p.add_argument('--debug-info-url')
-    p.add_argument('--readonly', type=str_to_bool, default=True)
+    p.add_argument('--package-type', metavar='TYPE',
+                   default='package',
+                   help='Specify the package type, e.g. "rpm" or "deb"')
+    p.add_argument('--package-name', metavar='NAME',
+                   help='The name of the package (e.g. "foo" or "libbar")')
+    p.add_argument('--package-version', metavar='VERSION',
+                   help='The full version of the package (e.g. 1.5-1.fc35.s390x)')
+    p.add_argument('--package-architecture', metavar='ARCH',
+                   help='The code architecture of the binaries (e.g. arm64 or s390x)')
+    p.add_argument('--cpe',
+                   help='NIST CPE identifier of the vendor operating system')
+    p.add_argument('--rpm', metavar='NEVRA',
+                   help='Extract type,name,version,architecture from a full rpm name')
+    p.add_argument('--debug-info-url', metavar='URL',
+                   help='URL of the debuginfod server where sources can be queried')
+    p.add_argument('--readonly', metavar='BOOL',
+                   type=str_to_bool, default=True,
+                   help='Make the notes section read-only (requires binutils 2.38)')
 
     opts = p.parse_args()
 
