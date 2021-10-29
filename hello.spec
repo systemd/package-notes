@@ -56,7 +56,7 @@ python3 %{SOURCE0} $readonly --rpm '%{name}-%{VERSION}-%{RELEASE}.%{_arch}' | \
         tee notes.ld
 %endif
 
-LDFLAGS="%{build_ldflags} %{?with_notes:-Wl,-T,$PWD/notes.ld}"
+LDFLAGS="%{build_ldflags} %{?with_notes:-Wl,-dT,$PWD/notes.ld}"
 CFLAGS="%{build_cflags}"
 
 gcc -Wall -fPIC -o libhello.so -shared libhello.c $CFLAGS $LDFLAGS

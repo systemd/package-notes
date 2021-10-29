@@ -44,7 +44,7 @@ SECTIONS
     }
 }
 INSERT AFTER .note.gnu.build-id;
-/* HINT: add -Wl,-T,/path/to/this/file to $LDFLAGS */
+/* HINT: add -Wl,-dT,/path/to/this/file to $LDFLAGS */
 """
 
 import argparse
@@ -177,7 +177,7 @@ def generate_section(opts):
             *section,
             '}',
             'INSERT AFTER .note.gnu.build-id;',
-            '/* HINT: add -Wl,-T,/path/to/this/file to $LDFLAGS */']
+            '/* HINT: add -Wl,-dT,/path/to/this/file to $LDFLAGS */']
 
 if __name__ == '__main__':
     opts = parse_args()
