@@ -96,7 +96,8 @@ def str_to_bool(v):
 
 def parse_args():
     p = argparse.ArgumentParser(description=DOC_PARAGRAPHS[0],
-                                epilog=DOC_PARAGRAPHS[-1])
+                                epilog=DOC_PARAGRAPHS[-1],
+                                allow_abbrev=False)
     p.add_argument('--package-type', metavar='TYPE',
                    default='package',
                    help='Specify the package type, e.g. "rpm" or "deb"')
