@@ -53,6 +53,8 @@ INSERT AFTER .note.gnu.build-id;
 See https://systemd.io/COREDUMP_PACKAGE_METADATA/ for details.
 """
 
+__version__ = '0.3'
+
 import argparse
 import itertools
 import re
@@ -113,6 +115,7 @@ def parse_args():
     p.add_argument('--readonly', metavar='BOOL',
                    type=str_to_bool, default=True,
                    help='Make the notes section read-only (requires binutils 2.38)')
+    p.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
 
     opts = p.parse_args()
 
