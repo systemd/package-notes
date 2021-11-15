@@ -2,6 +2,10 @@
 # SPDX-License-Identifier: CC0-1.0
 
 """
+Generates a linker script to insert a .note.package section with a
+JSON payload. The contents are derived from the specified options and the
+os-release file. Use the output with -Wl,-dT,/path/to/output in $LDFLAGS.
+
 $ ./generate-package-notes.py --package-type rpm --package-name systemd --package-version 248~rc2-1.fc34 --package-architecture x86_64 --cpe 'cpe:/o:fedoraproject:fedora:33'
 SECTIONS
 {
@@ -45,11 +49,19 @@ SECTIONS
 }
 INSERT AFTER .note.gnu.build-id;
 /* HINT: add -Wl,-dT,/path/to/this/file to $LDFLAGS */
+
+See https://systemd.io/COREDUMP_PACKAGE_METADATA/ for details.
 """
 
 import argparse
-import simplejson as json
+import itertools
 import re
+
+import simplejson as json
+
+DOC_PARAGRAPHS = ['\n'.join(group)
+                  for (key, group) in itertools.groupby(__doc__.splitlines(), bool)
+                  if key]
 
 def read_os_release(field):
     try:
@@ -81,7 +93,8 @@ def str_to_bool(v):
     raise argparse.ArgumentTypeError('"yes"/"true"/"1"/"no"/"false"/"0" expected')
 
 def parse_args():
-    p = argparse.ArgumentParser()
+    p = argparse.ArgumentParser(description=DOC_PARAGRAPHS[0],
+                                epilog=DOC_PARAGRAPHS[-1])
     p.add_argument('--package-type', metavar='TYPE',
                    default='package',
                    help='Specify the package type, e.g. "rpm" or "deb"')
