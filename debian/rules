@@ -4,7 +4,7 @@
 	dh $@
 
 execute_after_dh_auto_build:
-	pod2man dh_package_notes $(CURDIR)/debian/dh_package_notes.1
+	pod2man $(CURDIR)/dh/dh_package_notes $(CURDIR)/debian/dh_package_notes.1
 
 override_dh_python3:
 	dh_python3 --depends simplejson
