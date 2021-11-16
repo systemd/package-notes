@@ -1,3 +1,25 @@
+package-notes (0.4) unstable; urgency=medium
+
+  [ Zbigniew Jędrzejewski-Szmek ]
+  * generator: add a hint how to use the output to the output
+  * generator: allow disabling READONLY
+  * rpm: skip (READONLY) with older linker versions
+  * Use -Wl,-dT
+  * generator: add help strings
+
+  [ Luca Boccassi ]
+  * Debian: use -Wl,dT
+
+  [ Zbigniew Jędrzejewski-Szmek ]
+  * generator: add description in help output
+  * generator: add --version argument
+  * generator: disallow abbreviated option names
+  * generator: rename program to not have .py suffix
+  * generator: fix two minor issues reported by pylint
+  * debian: stop using dh-exec
+
+ -- Luca Boccassi <bluca@debian.org>  Tue, 16 Nov 2021 18:24:59 +0000
+
 package-notes (0.3) unstable; urgency=medium
 
   * Add architecture field
