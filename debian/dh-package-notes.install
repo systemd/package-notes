@@ -1,3 +1,3 @@
-dh_package_notes usr/bin
+dh/dh_package_notes usr/bin
 generate-package-notes usr/bin
-package_notes.pm usr/share/perl5/Debian/Debhelper/Sequence
+dh/package_notes.pm usr/share/perl5/Debian/Debhelper/Sequence
