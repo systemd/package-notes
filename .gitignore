@@ -1,5 +1,4 @@
 /*.src.rpm
-/*/**
 /*.log
 !/debian/changelog
 !/debian/control
@@ -9,3 +8,4 @@
 !/debian/generate-package-notes.1
 !/debian/rules
 !/debian/source/format
+__pycache__/
