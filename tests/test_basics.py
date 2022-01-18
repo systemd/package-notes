@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: CC0-1.0
 
+import sys
 import unittest
 from importlib import resources
 
 from _generate_package_notes import generate_section
+
 
 class TestGeneratedOutput(unittest.TestCase):
     def test_fedora_package(self):
