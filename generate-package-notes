@@ -182,12 +182,12 @@ def json_serialize(s):
                       ensure_ascii=False,
                       separators=(',', ':'))
 
-def generate_section(opts):
+def gather_data(opts):
     data = {
-        'type':           opts.package_type,
-        'name':           opts.package_name,
-        'version':        opts.package_version,
-        'architecture':   opts.package_architecture,
+        'type':         opts.package_type,
+        'name':         opts.package_name,
+        'version':      opts.package_version,
+        'architecture': opts.package_architecture,
     }
     if opts.cpe:
         data['osCpe'] = opts.cpe
@@ -196,10 +196,12 @@ def generate_section(opts):
         data['osVersion'] = read_os_release('VERSION_ID')
     if opts.debug_info_url:
         data['debugInfoUrl'] = opts.debug_info_url
+    return data
 
+def generate_section(data, readonly=True):
     json = json_serialize(data)
 
-    section = encode_note('package', NOTE_ID, 'FDO', json, readonly=opts.readonly, prefix='    ')
+    section = encode_note('package', NOTE_ID, 'FDO', json, readonly=readonly, prefix='    ')
     return ['SECTIONS', '{',
             *section,
             '}',
@@ -208,6 +210,7 @@ def generate_section(opts):
 
 if __name__ == '__main__':
     opts = parse_args()
-    lines = generate_section(opts)
+    data = gather_data(opts)
+    lines = generate_section(data, readonly=opts.readonly)
 
     print('\n'.join(lines))
