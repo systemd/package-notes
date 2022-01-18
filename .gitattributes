@@ -1,0 +1,6 @@
+# Mark files as "generated", i.e. no license applies to them.
+# This includes output from programs, samples, and and anything else
+# where no copyright can be asserted.
+
+# Use 'git check-attr generated -- <path>' to query the attribute.
+[attr]generated
