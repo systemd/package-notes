@@ -1,3 +1,4 @@
+*.sw*
 /*.src.rpm
 /*.log
 !/debian/changelog
