@@ -6,6 +6,7 @@ from importlib import resources
 
 from _generate_package_notes import generate_section
 
+
 class TestGeneratedOutput(unittest.TestCase):
     def test_fedora_package(self):
         input = dict(type='rpm', name='package', version='1.2.3', architecture='noarch', osCpe='CPE')
