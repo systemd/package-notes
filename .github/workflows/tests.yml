@@ -20,7 +20,7 @@ jobs:
       - name: Repository checkout
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: sudo apt -y install binutils python3-simplejson
+        run: sudo apt -y install binutils python3-pytest python3-simplejson
       - name: Run tests
-        run: cd tests && python3 -m unittest -v
+        run: python3 -m pytest -v
 
