@@ -3,7 +3,7 @@
 # Add an ELF note with information about the package the code was compiled for.
 # See https://fedoraproject.org/wiki/Changes/Package_information_on_ELF_objects
 # for details.
-%_package_note_file     %{_builddir}/.package_note-%{name}-%{version}-%{release}.%{_arch}.ld
+%_package_note_file     %{_builddir}%{?buildsubdir:/%{buildsubdir}}/.package_note-%{name}-%{version}-%{release}.%{_arch}.ld
 
 %_package_note_flags    %{?_package_note_file:%{?name:%["%_target_cpu" == "noarch"?"":"-Wl,-dT,%{_package_note_file}"]}}
 
