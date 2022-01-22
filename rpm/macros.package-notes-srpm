@@ -4,7 +4,8 @@
 # See https://fedoraproject.org/wiki/Changes/Package_information_on_ELF_objects
 # for details.
 %_package_note_file     %{_builddir}%{?buildsubdir:/%{buildsubdir}}/.package_note-%{name}-%{version}-%{release}.%{_arch}.ld
+%_package_note_readonly 1
 
 %_package_note_flags    %{?_package_note_file:%{?name:%["%_target_cpu" == "noarch"?"":"-Wl,-dT,%{_package_note_file}"]}}
 
-%_generate_package_note_file %{?_package_note_file:%{?name:%["%_target_cpu" == "noarch"?"":"if [ -f %{_rpmconfigdir}/generate-package-notes.sh ]; then %{_rpmconfigdir}/generate-package-notes.sh ${RPM_PACKAGE_NAME:?} ${RPM_PACKAGE_VERSION:?}-${RPM_PACKAGE_RELEASE:?} ${RPM_ARCH:?} >%{_package_note_file}; fi}}
+%_generate_package_note_file %{?_package_note_file:%{?name:%["%_target_cpu" == "noarch"?"":"if [ -f %{_rpmconfigdir}/generate-package-notes.sh ]; then %{_rpmconfigdir}/generate-package-notes.sh %{!?_package_note_readonly:--readonly no} ${RPM_PACKAGE_NAME:?} ${RPM_PACKAGE_VERSION:?}-${RPM_PACKAGE_RELEASE:?} ${RPM_ARCH:?} >%{_package_note_file}; fi}}
