@@ -6,7 +6,7 @@ Generates a linker script to insert a .note.package section with a
 JSON payload. The contents are derived from the specified options and the
 os-release file. Use the output with -Wl,-dT,/path/to/output in $LDFLAGS.
 
-$ ./generate-package-notes --package-type rpm --package-name systemd --package-version 248~rc2-1.fc34 --package-architecture x86_64 --cpe 'cpe:/o:fedoraproject:fedora:33'
+$ ./generate-package-notes.py --package-type rpm --package-name systemd --package-version 248~rc2-1.fc34 --package-architecture x86_64 --cpe 'cpe:/o:fedoraproject:fedora:33'
 SECTIONS
 {
     .note.package (READONLY) : ALIGN(4) {
