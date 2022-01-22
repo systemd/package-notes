@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # SPDX-License-Identifier: CC0-1.0
 
 pad_string() {
@@ -15,12 +15,13 @@ write_string() {
 
     printf "%s/* %s: '%s' */" "$prefix" "$label" "$text"
     for i in $(seq ${#text}); do
-        if (( i % 4 == 1 )); then
+        if [ $(( i % 4)) -eq 1 ]; then
             printf '\n%s' "$prefix"
         else
             printf ' '
         fi
-        printf 'BYTE(0x%02x)' "'${text:i-1:1}"
+        byte=$(echo "${text}" | cut -c "${i}")
+        printf 'BYTE(0x%02x)' "'${byte}"
     done
 
     pad_string $(( total - ${#text} ))
