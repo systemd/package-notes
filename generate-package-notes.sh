@@ -1,5 +1,56 @@
 #!/bin/sh
 # SPDX-License-Identifier: CC0-1.0
+#
+# Generates a linker script to insert a .note.package section with a
+# JSON payload. The contents are derived from the specified options and the
+# os-release file. Use the output with -Wl,-dT,/path/to/output in $LDFLAGS.
+#
+# $ ./generate-package-notes.sh --type rpm --name systemd --version 248~rc2-1.fc34 --architecture x86_64 --osCpe 'cpe:/o:fedoraproject:fedora:33'
+# SECTIONS
+# {
+#     .note.package (READONLY) : ALIGN(4) {
+#         BYTE(0x04) BYTE(0x00) BYTE(0x00) BYTE(0x00) /* Length of Owner including NUL */
+#         BYTE(0x7c) BYTE(0x00) BYTE(0x00) BYTE(0x00) /* Length of Value including NUL */
+#         BYTE(0x7e) BYTE(0x1a) BYTE(0xfe) BYTE(0xca) /* Note ID */
+#         BYTE(0x46) BYTE(0x44) BYTE(0x4f) BYTE(0x00) /* Owner: 'FDO\x00' */
+#         BYTE(0x7b) BYTE(0x22) BYTE(0x74) BYTE(0x79) /* Value: '{"type":"rpm","name":"systemd","version":"248~rc2-1.fc34","architecture":"x86_64","osCpe":"cpe:/o:fedoraproject:fedora:33"}\x00' */
+#         BYTE(0x70) BYTE(0x65) BYTE(0x22) BYTE(0x3a)
+#         BYTE(0x22) BYTE(0x72) BYTE(0x70) BYTE(0x6d)
+#         BYTE(0x22) BYTE(0x2c) BYTE(0x22) BYTE(0x6e)
+#         BYTE(0x61) BYTE(0x6d) BYTE(0x65) BYTE(0x22)
+#         BYTE(0x3a) BYTE(0x22) BYTE(0x73) BYTE(0x79)
+#         BYTE(0x73) BYTE(0x74) BYTE(0x65) BYTE(0x6d)
+#         BYTE(0x64) BYTE(0x22) BYTE(0x2c) BYTE(0x22)
+#         BYTE(0x76) BYTE(0x65) BYTE(0x72) BYTE(0x73)
+#         BYTE(0x69) BYTE(0x6f) BYTE(0x6e) BYTE(0x22)
+#         BYTE(0x3a) BYTE(0x22) BYTE(0x32) BYTE(0x34)
+#         BYTE(0x38) BYTE(0x7e) BYTE(0x72) BYTE(0x63)
+#         BYTE(0x32) BYTE(0x2d) BYTE(0x31) BYTE(0x2e)
+#         BYTE(0x66) BYTE(0x63) BYTE(0x33) BYTE(0x34)
+#         BYTE(0x22) BYTE(0x2c) BYTE(0x22) BYTE(0x61)
+#         BYTE(0x72) BYTE(0x63) BYTE(0x68) BYTE(0x69)
+#         BYTE(0x74) BYTE(0x65) BYTE(0x63) BYTE(0x74)
+#         BYTE(0x75) BYTE(0x72) BYTE(0x65) BYTE(0x22)
+#         BYTE(0x3a) BYTE(0x22) BYTE(0x78) BYTE(0x38)
+#         BYTE(0x36) BYTE(0x5f) BYTE(0x36) BYTE(0x34)
+#         BYTE(0x22) BYTE(0x2c) BYTE(0x22) BYTE(0x6f)
+#         BYTE(0x73) BYTE(0x43) BYTE(0x70) BYTE(0x65)
+#         BYTE(0x22) BYTE(0x3a) BYTE(0x22) BYTE(0x63)
+#         BYTE(0x70) BYTE(0x65) BYTE(0x3a) BYTE(0x2f)
+#         BYTE(0x6f) BYTE(0x3a) BYTE(0x66) BYTE(0x65)
+#         BYTE(0x64) BYTE(0x6f) BYTE(0x72) BYTE(0x61)
+#         BYTE(0x70) BYTE(0x72) BYTE(0x6f) BYTE(0x6a)
+#         BYTE(0x65) BYTE(0x63) BYTE(0x74) BYTE(0x3a)
+#         BYTE(0x66) BYTE(0x65) BYTE(0x64) BYTE(0x6f)
+#         BYTE(0x72) BYTE(0x61) BYTE(0x3a) BYTE(0x33)
+#         BYTE(0x33) BYTE(0x22) BYTE(0x7d) BYTE(0x00)
+#     }
+# }
+# INSERT AFTER .note.gnu.build-id;
+# /* HINT: add -Wl,-dT,/path/to/this/file to $LDFLAGS */
+#
+# See https://systemd.io/COREDUMP_PACKAGE_METADATA/ for details.
+
 
 json=
 
