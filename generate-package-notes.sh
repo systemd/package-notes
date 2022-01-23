@@ -163,8 +163,12 @@ pad_comment() {
 }
 
 pad_string() {
-    for _ in $(seq "$1"); do
-        printf ' BYTE(0x00)'
+    for i in $(seq "$1"); do
+        if [ $(( ( $2 + i - 1) % 4 )) -eq 0 ]; then
+            printf '\n%sBYTE(0x00)' "${3}"
+        else
+            printf ' BYTE(0x00)'
+        fi
     done
 }
 
@@ -173,6 +177,13 @@ write_string() {
     prefix="$2"
     label="$3"
     total="$4"
+
+    # We always have at least the terminating NULL
+    if [ $(( total % 4)) -eq 0 ]; then
+        padding_nulls=1
+    else
+        padding_nulls="$(( 1 + 4 - (total % 4) ))"
+    fi
 
     for i in $(seq ${#text}); do
         if [ $(( i % 4)) -eq 1 ]; then
@@ -187,17 +198,18 @@ write_string() {
         # to match the output of the older script, including padding NUL.
         if [ "${i}" -eq 4 ]; then
             printf " /* %s: '%s" "$label" "$text"
-            pad_comment $(( total - ${#text} ))
+            pad_comment "${padding_nulls}"
             printf "' */"
         fi
     done
 
-    pad_string $(( total - ${#text} ))
+    pad_string "${padding_nulls}" "${#text}" "$prefix"
     printf '\n'
 }
 
 write_script() {
-    value_len=$(( (${#1} + 3) / 4 * 4 ))
+    # NULL terminator is included in the size, but not padding
+    value_len=$(( ${#1} + 1 ))
 
     printf 'SECTIONS\n{\n'
     printf '    .note.package %s: ALIGN(4) {\n' "${readonly}"
