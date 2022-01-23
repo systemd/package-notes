@@ -46,6 +46,11 @@ write_script() {
     printf 'INSERT AFTER .note.gnu.build-id;\n'
 }
 
-cpe="$(cat /usr/lib/system-release-cpe)"
-json="$(printf '{"type":"rpm","name":"%s","version":"%s","architecture":"%s","osCpe":"%s"}' "$1" "$2" "$3" "$cpe")"
+# Not supported on every distro
+if [ ! -r /usr/lib/system-release-cpe ]; then
+    cpe="$(cat /usr/lib/system-release-cpe)"
+    json_cpe=",\"osCpe\": \"${cpe}\""
+fi
+
+json="$(printf '{"type":"rpm","name":"%s","version":"%s","architecture":"%s"%s}' "$1" "$2" "$3" "$json_cpe")"
 write_script "$json"
