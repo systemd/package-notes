@@ -1,4 +1,4 @@
 #!/usr/bin/dh-exec
 dh/dh_package_notes usr/bin
-generate-package-notes.py => usr/bin/generate-package-notes
+generate-package-notes.sh => usr/bin/generate-package-notes
 dh/package_notes.pm usr/share/perl5/Debian/Debhelper/Sequence
