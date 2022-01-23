@@ -1,8 +1,11 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 
 Files: *
-Copyright: 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
-           2021 Luca Boccassi <bluca@debian.org>
+Copyright: 2021-2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
+           2021-2022 Luca Boccassi <bluca@debian.org>
+           2021 Victor Westerhuis <victor@westerhu.is> 
+           2021 Mark Wielaard <mark@klomp.org>
+           2022 Frantisek Sumsal <fsumsal@redhat.com>
 License: CC0-1.0
  To the extent possible under law, the author(s) have dedicated all copyright
  and related and neighboring rights to this software to the public domain
