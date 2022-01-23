@@ -146,9 +146,9 @@ def encode_bytes_lines(arr, prefix='', label='string'):
 
 def encode_length(s, prefix='', label='string'):
     n = (len(s) + 1) * 4 // 4
-    n1 = n % 0xFF
-    n2 = n // 0xFF
-    assert n2 < 0xFF
+    n1 = n % 0x100
+    n2 = n // 0x100
+    assert n2 < 0x100
     return prefix + encode_bytes([n1, n2, 0, 0]) + ' /* Length of {} including NUL */'.format(label)
 
 def encode_note_id(arr, prefix=''):
