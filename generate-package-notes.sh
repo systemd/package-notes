@@ -92,6 +92,12 @@ parse_options() {
     return "$#"
 }
 
+pad_comment() {
+    for _ in $(seq "$1"); do
+        printf '\x00'
+    done
+}
+
 pad_string() {
     for _ in $(seq "$1"); do
         printf ' BYTE(0x00)'
@@ -104,7 +110,6 @@ write_string() {
     label="$3"
     total="$4"
 
-    printf "%s/* %s: '%s' */" "$prefix" "$label" "$text"
     for i in $(seq ${#text}); do
         if [ $(( i % 4)) -eq 1 ]; then
             printf '\n%s' "$prefix"
@@ -113,6 +118,14 @@ write_string() {
         fi
         byte=$(echo "${text}" | cut -c "${i}")
         printf 'BYTE(0x%02x)' "'${byte}"
+
+        # Print the json object as a comment after the first 4 bytes
+        # to match the output of the older script, including padding NUL.
+        if [ "${i}" -eq 4 ]; then
+            printf " /* %s: '%s" "$label" "$text"
+            pad_comment $(( total - ${#text} ))
+            printf "' */"
+        fi
     done
 
     pad_string $(( total - ${#text} ))
@@ -129,12 +142,14 @@ write_script() {
            $((value_len % 256)) $((value_len / 256))
 
     printf '        BYTE(0x7e) BYTE(0x1a) BYTE(0xfe) BYTE(0xca) /* Note ID */\n'
-    printf "        BYTE(0x46) BYTE(0x44) BYTE(0x4f) BYTE(0x00) /* Owner: 'FDO' */\n"
+    printf "        BYTE(0x46) BYTE(0x44) BYTE(0x4f) BYTE(0x00) /* Owner: 'FDO\x00' */" # newline will be added by write_string
 
     write_string "$1" '        ' 'Value' "$value_len"
 
     printf '    }\n}\n'
     printf 'INSERT AFTER .note.gnu.build-id;\n'
+    # shellcheck disable=SC2016
+    printf '/* HINT: add -Wl,-dT,/path/to/this/file to $LDFLAGS */\n'
 }
 
 if ! parse_options "$@" && [ "$#" -gt 0 ]; then
