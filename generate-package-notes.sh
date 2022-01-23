@@ -53,12 +53,14 @@
 
 
 json=
+readonly="(READONLY) "
 
 help() {
     echo "Usage: $0 [OPTION]..."
     echo "Generate a package notes linker script from specified metadata."
     echo
     echo "  -h, --help                      display this help and exit"
+    echo "      --readonly BOOL             whether to add the READONLY attribute to script (default: true)"
     echo "      --package-type TYPE         set the package type (e.g. 'rpm' or 'deb')"
     echo "      --package-name NAME         set the package name"
     echo "      --package-version VERSION   set the package version"
@@ -95,6 +97,17 @@ parse_options() {
             -h|-\?|--help)
                 help
                 exit
+                ;;
+            --readonly)
+                if [ -z "${2}" ]; then
+                    invalid_argument "${1}"
+                fi
+                case $2 in
+                    no|NO|No|false|FALSE|False|0)
+                        readonly=""
+                        ;;
+                esac
+                shift
                 ;;
             --package-type)
                 append_parameter "type" "${2}"
@@ -187,7 +200,7 @@ write_script() {
     value_len=$(( (${#1} + 3) / 4 * 4 ))
 
     printf 'SECTIONS\n{\n'
-    printf '    .note.package (READONLY) : ALIGN(4) {\n'
+    printf '    .note.package %s: ALIGN(4) {\n' "${readonly}"
     printf '        BYTE(0x04) BYTE(0x00) BYTE(0x00) BYTE(0x00) /* Length of Owner including NUL */\n'
     printf '        BYTE(0x%02x) BYTE(0x%02x) BYTE(0x00) BYTE(0x00) /* Length of Value including NUL */\n' \
            $((value_len % 256)) $((value_len / 256))
