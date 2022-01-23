@@ -211,6 +211,11 @@ write_script() {
     # NULL terminator is included in the size, but not padding
     value_len=$(( ${#1} + 1 ))
 
+    if [ "${value_len}" -gt 65536 ]; then
+        printf 'ERROR: "%s" is too long.\n' "${1}" >&2
+        exit 1
+    fi
+
     printf 'SECTIONS\n{\n'
     printf '    .note.package %s: ALIGN(4) {\n' "${readonly}"
     printf '        BYTE(0x04) BYTE(0x00) BYTE(0x00) BYTE(0x00) /* Length of Owner including NUL */\n'
