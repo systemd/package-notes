@@ -1,4 +1,4 @@
-package-notes (0.4) unstable; urgency=medium
+package-notes (0.4) UNRELEASED; urgency=medium
 
   [ Zbigniew Jędrzejewski-Szmek ]
   * generator: add a hint how to use the output to the output
@@ -8,6 +8,9 @@ package-notes (0.4) unstable; urgency=medium
   * generator: add help strings
 
   [ Luca Boccassi ]
+  * Initial packaging
+  * Add architecture field
+  * Skip fields without value
   * Debian: use -Wl,dT
 
   [ Zbigniew Jędrzejewski-Szmek ]
@@ -18,17 +21,6 @@ package-notes (0.4) unstable; urgency=medium
   * generator: fix two minor issues reported by pylint
   * debian: stop using dh-exec
 
- -- Luca Boccassi <bluca@debian.org>  Tue, 16 Nov 2021 18:24:59 +0000
-
-package-notes (0.3) unstable; urgency=medium
-
-  * Add architecture field
-  * Skip fields without value
-
- -- Luca Boccassi <bluca@debian.org>  Mon, 25 Oct 2021 22:32:27 +0100
-
-package-notes (0.2) unstable; urgency=medium
-
   [ Mark Wielaard ]
   * generate-package-notes.py: Add --debuginfod argument
 
@@ -37,11 +29,5 @@ package-notes (0.2) unstable; urgency=medium
   * Provide dh-sequence-package_notes
   * Fix Python installation
   * Add manpage for generate-package-notes
-
- -- Luca Boccassi <bluca@debian.org>  Sat, 15 May 2021 01:09:57 +0200
-
-package-notes (0.1) unstable; urgency=medium
-
-  * Initial packaging
 
  -- Luca Boccassi <bluca@debian.org>  Fri, 09 Apr 2021 21:19:12 +0000
