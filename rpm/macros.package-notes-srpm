@@ -32,10 +32,10 @@
 # values for the main package.
 %_package_note_file     %{_builddir}%{?buildsubdir:/%{buildsubdir}}/.package_note-%{name}-%{version}-%{release}.%{_arch}.ld
 
-# Which linker will be used? Unfortunately linkers other than bfd do not
-# support some of the options that we'd like to use. This can be set to
-# disable the READONLY attribute and do other tweaks so linking works with
-# the alternative linkers. This should be either "bfd", "gold", or "lld".
+# Which linker will be used? This should be either "bfd", "gold", or
+# "lld". Unfortunately linkers other than bfd do not support some of
+# the options that we'd like to use, so if this is set to anything
+# other than "bfd", note insertion is disabled.
 %_package_note_linker   bfd
 
 # Whether to specify the READONLY attribute for the inserted
@@ -43,10 +43,13 @@
 # linkers do not support it.
 %_package_note_readonly %["%_package_note_linker" == "bfd"?"1":"0"]
 
+# Overall status: 1 if looks like we can insert the note, 0 otherwise
+%_package_note_status   %[0%{?_package_note_file:1} && 0%{?name:1} && "%_target_cpu" != "noarch" && "%_package_note_linker" == "bfd" ? 1 : 0]
+
 # The linker flags to be passed to the compiler to insert the notes section.
-%_package_note_flags    %{?_package_note_file:%{?name:%["%_target_cpu" == "noarch"?"":"-Wl,%["%_package_note_linker" == "bfd"?"-dT":"-T"],%{_package_note_file}"]}}
+%_package_note_flags    %[%_package_note_status?"-Wl,%["%_package_note_linker" != "lld"?"-dT":"-T"],%{_package_note_file}":""]
 
 # The command to actually generate the linker script that inserts the
 # notes file. This command is automatically used as part of the build
 # preamble.
-%_generate_package_note_file %{?_package_note_file:%{?name:%["%_target_cpu" == "noarch"?"":"if [ -f %{_rpmconfigdir}/generate-package-notes.sh ]; then %{_rpmconfigdir}/generate-package-notes.sh %[0%{?_package_note_readonly}?"":"--readonly no "]${RPM_PACKAGE_NAME:?} ${RPM_PACKAGE_VERSION:?}-${RPM_PACKAGE_RELEASE:?} ${RPM_ARCH:?} >%{_package_note_file}; fi"]}}
+%_generate_package_note_file %[%_package_note_status?"if [ -f %{_rpmconfigdir}/generate-package-notes.sh ]; then %{_rpmconfigdir}/generate-package-notes.sh %[0%{?_package_note_readonly}?"":"--readonly no "]${RPM_PACKAGE_NAME:?} ${RPM_PACKAGE_VERSION:?}-${RPM_PACKAGE_RELEASE:?} ${RPM_ARCH:?} >%{_package_note_file}; fi":""]
