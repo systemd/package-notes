@@ -36,7 +36,9 @@
 # "lld". Unfortunately linkers other than bfd do not support some of
 # the options that we'd like to use, so if this is set to anything
 # other than "bfd", note insertion is disabled.
-%_package_note_linker   bfd
+#
+# (The default linker for clang on armv7hl is lld.)
+%_package_note_linker   %["%_target_cpu" == "armv7hl" && "%{toolchain}" == "clang" ? "lld" : "bfd"]
 
 # Whether to specify the READONLY attribute for the inserted
 # section. We generally want this, but binutils <= 2.37 and other
