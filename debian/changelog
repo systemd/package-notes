@@ -8,7 +8,7 @@ package-notes (0.4) UNRELEASED; urgency=medium
   * generator: add help strings
 
   [ Luca Boccassi ]
-  * Initial packaging
+  * Initial packaging (Closes: #1004357)
   * Add architecture field
   * Skip fields without value
   * Debian: use -Wl,dT
