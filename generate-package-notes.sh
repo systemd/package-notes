@@ -158,7 +158,7 @@ parse_options() {
 
 pad_comment() {
     for _ in $(seq "$1"); do
-        printf '\x00'
+        printf '\\x00'
     done
 }
 
@@ -223,7 +223,7 @@ write_script() {
            $((value_len % 256)) $((value_len / 256))
 
     printf '        BYTE(0x7e) BYTE(0x1a) BYTE(0xfe) BYTE(0xca) /* Note ID */\n'
-    printf "        BYTE(0x46) BYTE(0x44) BYTE(0x4f) BYTE(0x00) /* Owner: 'FDO\x00' */" # newline will be added by write_string
+    printf "        BYTE(0x46) BYTE(0x44) BYTE(0x4f) BYTE(0x00) /* Owner: 'FDO\\\\x00' */" # newline will be added by write_string
 
     write_string "$1" '        ' 'Value' "$value_len"
 
