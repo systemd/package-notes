@@ -7,4 +7,4 @@
 
 %_package_note_flags    %{?name:-Wl,-dT,%{_package_note_file}}
 
-%_generate_package_note_file %{?name: if ! [ -f %{_package_note_file} ] && -f %{_rpmconfigdir}/generate-rpm-note.sh; then %{_rpmconfigdir}/generate-rpm-note.sh %{name} %{version}-%{release} %{_arch} >%{_package_note_file}; fi}
+%_generate_package_note_file %{?name: if ! [ -f %{_package_note_file} ] && -f %{_rpmconfigdir}/generate-rpm-note.sh; then %{_rpmconfigdir}/generate-package-notes.sh %{name} %{version}-%{release} %{_arch} >%{_package_note_file}; fi}

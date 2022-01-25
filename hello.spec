@@ -15,7 +15,7 @@ BuildRequires:  rpmdevtools
 BuildRequires:  python3
 BuildRequires:  python3-simplejson
 
-Source0:        generate-package-notes
+Source0:        generate-package-notes.py
 
 %description
 Test with:

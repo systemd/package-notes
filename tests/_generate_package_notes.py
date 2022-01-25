@@ -1,1 +1,1 @@
-../generate-package-notes
+../generate-package-notes.py

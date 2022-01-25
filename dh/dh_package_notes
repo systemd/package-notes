@@ -49,11 +49,12 @@ my $package_arch   = hostarch();
 my %options        = ( 'stdout' => "debian/.debhelper/notes.ld" );
 my @cmd            = (
     "/usr/bin/generate-package-notes",
-    "--package-type",    "deb",
-    "--package-name",    ${source_package},
-    "--package-architecture", ${package_arch},
-    "--package-version", $dh{VERSION},
-    "--debug-info-url",  "https://debuginfod.debian.net"
+    "--type",    "deb",
+    "--os",      "debian",
+    "--name",    ${source_package},
+    "--architecture", ${package_arch},
+    "--version", $dh{VERSION},
+    "--debugInfoUrl",  "https://debuginfod.debian.net"
 );
 
 if ( not mkdir("debian/.debhelper") ) {
