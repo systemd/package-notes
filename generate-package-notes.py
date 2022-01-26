@@ -57,7 +57,9 @@ __version__ = '0.4'
 
 import argparse
 import itertools
+import os
 import re
+from pathlib import Path
 
 import simplejson as json
 
@@ -65,11 +67,11 @@ DOC_PARAGRAPHS = ['\n'.join(group)
                   for (key, group) in itertools.groupby(__doc__.splitlines(), bool)
                   if key]
 
-def read_os_release(field):
+def read_os_release(field, root=Path('/')):
     try:
-        f = open('/etc/os-release')
+        f = open(root / 'etc/os-release')
     except FileNotFoundError:
-        f = open('/usr/lib/os-release')
+        f = open(root / 'usr/lib/os-release')
 
     prefix = '{}='.format(field)
     for line in f:
@@ -116,18 +118,20 @@ def parse_args():
     p.add_argument('--readonly', metavar='BOOL',
                    type=str_to_bool, default=True,
                    help='Make the notes section read-only (requires binutils 2.38)')
+    p.add_argument('--root', metavar='PATH', type=Path, default="/",
+                   help='When a file (eg: /usr/lib/os-release) is parsed, open it relatively from this hierarchy')
     p.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
 
     opts = p.parse_args()
 
     if opts.cpe == 'auto':
         try:
-            with open('/usr/lib/system-release-cpe', 'r') as f:
+            with open(Path(opts.root, 'usr/lib/system-release-cpe'), 'r') as f:
                 opts.cpe = f.read()
         except:
-            opts.cpe = read_os_release('CPE_NAME')
+            opts.cpe = read_os_release('CPE_NAME', root=opts.root)
             if opts.cpe is None or opts.cpe == "":
-                raise Exception("Could not read /usr/lib/system-release-cpe or CPE_NAME from os-release")
+                raise Exception(f"Could not read {opts.root}usr/lib/system-release-cpe or CPE_NAME from {opts.root}usr/lib/os-release")
 
     if opts.rpm:
         split = re.match(r'(.*?)-([0-9].*)\.(.*)', opts.rpm)
@@ -198,8 +202,8 @@ def gather_data(opts):
     if opts.cpe:
         data['osCpe'] = opts.cpe
     else:
-        data['os'] = read_os_release('ID')
-        data['osVersion'] = read_os_release('VERSION_ID')
+        data['os'] = read_os_release('ID', root=opts.root)
+        data['osVersion'] = read_os_release('VERSION_ID', root=opts.root)
     if opts.debug_info_url:
         data['debugInfoUrl'] = opts.debug_info_url
     return data
