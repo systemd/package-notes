@@ -124,24 +124,6 @@ def parse_args():
 
     opts = p.parse_args()
 
-    if opts.cpe == 'auto':
-        try:
-            with open(Path(opts.root, 'usr/lib/system-release-cpe'), 'r') as f:
-                opts.cpe = f.read()
-        except:
-            opts.cpe = read_os_release('CPE_NAME', root=opts.root)
-            if opts.cpe is None or opts.cpe == "":
-                raise Exception(f"Could not read {opts.root}usr/lib/system-release-cpe or CPE_NAME from {opts.root}usr/lib/os-release")
-
-    if opts.rpm:
-        split = re.match(r'(.*?)-([0-9].*)\.(.*)', opts.rpm)
-        if not split:
-            raise ValueError('{!r} does not seem to be a valid package name'.format(opts.rpm))
-        opts.package_type = 'rpm'
-        opts.package_name = split.group(1)
-        opts.package_version = split.group(2)
-        opts.package_architecture = split.group(3)
-
     return opts
 
 def encode_bytes(arr):
@@ -193,6 +175,24 @@ def json_serialize(s):
                       separators=(',', ':'))
 
 def gather_data(opts):
+    if opts.cpe == 'auto':
+        try:
+            with open(Path(opts.root, 'usr/lib/system-release-cpe'), 'r') as f:
+                opts.cpe = f.read()
+        except FileNotFoundError:
+            opts.cpe = read_os_release('CPE_NAME', root=opts.root)
+            if opts.cpe is None or opts.cpe == "":
+                raise ValueError(f"Could not read {opts.root}usr/lib/system-release-cpe or CPE_NAME from {opts.root}usr/lib/os-release")
+
+    if opts.rpm:
+        split = re.match(r'(.*?)-([0-9].*)\.(.*)', opts.rpm)
+        if not split:
+            raise ValueError('{!r} does not seem to be a valid package name'.format(opts.rpm))
+        opts.package_type = 'rpm'
+        opts.package_name = split.group(1)
+        opts.package_version = split.group(2)
+        opts.package_architecture = split.group(3)
+
     data = {
         'type':         opts.package_type,
         'name':         opts.package_name,
