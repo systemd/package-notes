@@ -108,7 +108,7 @@ def parse_args():
     p.add_argument('--package-architecture', metavar='ARCH',
                    help='The code architecture of the binaries (e.g. arm64 or s390x)')
     p.add_argument('--cpe',
-                   help='NIST CPE identifier of the vendor operating system')
+                   help='NIST CPE identifier of the vendor operating system, or \'auto\' to parse from system-release-cpe or os-release')
     p.add_argument('--rpm', metavar='NEVRA',
                    help='Extract type,name,version,architecture from a full rpm name')
     p.add_argument('--debug-info-url', metavar='URL',
@@ -120,8 +120,14 @@ def parse_args():
 
     opts = p.parse_args()
 
-    if opts.cpe is None:
-        opts.cpe = read_os_release('CPE_NAME')
+    if opts.cpe == 'auto':
+        try:
+            with open('/usr/lib/system-release-cpe', 'r') as f:
+                opts.cpe = f.read()
+        except:
+            opts.cpe = read_os_release('CPE_NAME')
+            if opts.cpe is None or opts.cpe == "":
+                raise Exception("Could not read /usr/lib/system-release-cpe or CPE_NAME from os-release")
 
     if opts.rpm:
         split = re.match(r'(.*?)-([0-9].*)\.(.*)', opts.rpm)
