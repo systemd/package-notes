@@ -61,6 +61,7 @@ help() {
     echo
     echo "  -h, --help                      display this help and exit"
     echo "      --readonly BOOL             whether to add the READONLY attribute to script (default: true)"
+    echo "      --cpe VALUE                 NIST CPE identifier of the vendor operating system, or 'auto' to parse from system-release-cpe or os-release"
     echo "      --package-type TYPE         set the package type (e.g. 'rpm' or 'deb')"
     echo "      --package-name NAME         set the package name"
     echo "      --package-version VERSION   set the package version"
@@ -126,7 +127,26 @@ parse_options() {
                 shift
                 ;;
             --cpe)
-                append_parameter "osCpe" "${2}"
+                if [ -z "${2}" ]; then
+                    invalid_argument "${1}"
+                fi
+                cpe="${2}"
+                if [ "${cpe}" = "auto" ]; then
+                    if [ -r /usr/lib/system-release-cpe ]; then
+                        cpe="$(cat /usr/lib/system-release-cpe)"
+                    elif [ -r /etc/os-release ]; then
+                        # shellcheck disable=SC1091
+                        cpe="$(. /etc/os-release && echo "${CPE_NAME}")"
+                    elif [ -r /usr/lib/os-release ]; then
+                        # shellcheck disable=SC1091
+                        cpe="$(. /usr/lib/os-release && echo "${CPE_NAME}")"
+                    fi
+                    if [ -z "${cpe}" ]; then
+                        printf 'ERROR: --cpe auto but cannot read /usr/lib/system-release-cpe or parse CPE_NAME from os-release.\n' >&2
+                        exit 1
+                    fi
+                fi
+                append_parameter "osCpe" "${cpe}"
                 shift
                 ;;
             --debug-info-url)
