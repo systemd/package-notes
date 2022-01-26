@@ -81,6 +81,11 @@ to
 This defaults to the empty string, but for Debian packages it should
 be set to the Debian architecture identifier of the binary.
 .TP
+.TP
+.BI \-\-root= PATH
+When reading files, for example /usr/lib/system-release-cpe and /usr/lib/os-release,
+open them relatively to the specified directory.
+.TP
 .BI \-\-cpe= CPE
 Set the key
 .I osCpe
