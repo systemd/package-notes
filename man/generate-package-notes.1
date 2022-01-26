@@ -86,16 +86,10 @@ Set the key
 .I osCpe
 to
 .IR CPE .
-This defaults to the value of the
-.I CPE_NAME
-field in the first of
-.I /etc/os\-release
-or
-.I /usr/lib/os\-release
-that exists.
-Otherwise the key
-.I osCpe
-is omitted in the note.
+If the special value
+.I auto
+is passed, then the content of the /usr/lib/system-release-cpe file, or the value of CPE_NAME
+from os-release if the former was not found, will be used.
 .TP
 .BI \-\-rpm= PACKAGE \- VERSION
 Set the keys
