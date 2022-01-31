@@ -30,4 +30,39 @@ package-notes (0.4) UNRELEASED; urgency=medium
   * Fix Python installation
   * Add manpage for generate-package-notes
 
- -- Luca Boccassi <bluca@debian.org>  Fri, 09 Apr 2021 21:19:12 +0000
+  [ Zbigniew Jędrzejewski-Szmek ]
+  * rpm: rename srpm macros file
+  * rpm: fix filename in macro
+  * rpm: conditionalize all macros on %_package_note_file being defined
+  * rpm: make _generate_package_note_file always recreate the file
+  * rpm: use $RPM_PACKAGE_VERSION variable to refer to the package version
+  * rpm: also voidify the macros if we're on a noarch build
+  * rpm: use %{buildsubdir} in %_package_note_file if defined
+  * rpm: allow unsetting %_package_note_readonly to drop the READONLY
+    attribute
+  * rpm: add %_package_note_linker and document everything (rhbz#2043178,
+    rhbz#2043368)
+  * rpm: disable notes with linkers other than bfd
+  * rpm: disable notes when clang toolchain is used on arm
+  * generator: do not write zeroes to the linker script
+
+  [ Frantisek Sumsal ]
+  * ci: update repos before installing packages
+
+  [ Zbigniew Jędrzejewski-Szmek ]
+  * rpm: use named arguments
+
+  [ Luca Boccassi ]
+  * python: add --cpe auto
+  * shell: add --cpe auto
+  * man: document new --cpe auto option
+  * shell: add --root option
+  * python: add --root option
+  * man: document new --root option
+  * python: parse files in gather_data rather than parse_args
+  * tests: add resources and tests for --auto-cpe and --root
+  * rpm: use --cpe auto
+  * debian: bump debhelper-compat version to 13
+  * README: note we have both python and shell implementations
+
+ -- Luca Boccassi <bluca@debian.org>  Mon, 31 Jan 2022 23:43:02 +0000
