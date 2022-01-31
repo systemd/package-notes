@@ -1,4 +1,4 @@
-package-notes (0.4) UNRELEASED; urgency=medium
+package-notes (0.5) unstable; urgency=medium
 
   [ Zbigniew Jędrzejewski-Szmek ]
   * generator: add a hint how to use the output to the output

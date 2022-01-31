@@ -53,7 +53,7 @@ INSERT AFTER .note.gnu.build-id;
 See https://systemd.io/COREDUMP_PACKAGE_METADATA/ for details.
 """
 
-__version__ = '0.4'
+__version__ = '0.5'
 
 import argparse
 import itertools

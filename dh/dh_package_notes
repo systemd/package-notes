@@ -11,7 +11,7 @@ use strict;
 use warnings;
 use Debian::Debhelper::Dh_Lib
   qw(%dh doit hostarch init isnative sourcepackage);
-our $VERSION = '0.3';
+our $VERSION = '0.5';
 
 =head1 SYNOPSIS
 
