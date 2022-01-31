@@ -57,7 +57,9 @@ __version__ = '0.4'
 
 import argparse
 import itertools
+import os
 import re
+from pathlib import Path
 
 import simplejson as json
 
@@ -65,11 +67,11 @@ DOC_PARAGRAPHS = ['\n'.join(group)
                   for (key, group) in itertools.groupby(__doc__.splitlines(), bool)
                   if key]
 
-def read_os_release(field):
+def read_os_release(field, root=Path('/')):
     try:
-        f = open('/etc/os-release')
+        f = open(root / 'etc/os-release')
     except FileNotFoundError:
-        f = open('/usr/lib/os-release')
+        f = open(root / 'usr/lib/os-release')
 
     prefix = '{}='.format(field)
     for line in f:
@@ -108,7 +110,7 @@ def parse_args():
     p.add_argument('--package-architecture', metavar='ARCH',
                    help='The code architecture of the binaries (e.g. arm64 or s390x)')
     p.add_argument('--cpe',
-                   help='NIST CPE identifier of the vendor operating system')
+                   help='NIST CPE identifier of the vendor operating system, or \'auto\' to parse from system-release-cpe or os-release')
     p.add_argument('--rpm', metavar='NEVRA',
                    help='Extract type,name,version,architecture from a full rpm name')
     p.add_argument('--debug-info-url', metavar='URL',
@@ -116,21 +118,11 @@ def parse_args():
     p.add_argument('--readonly', metavar='BOOL',
                    type=str_to_bool, default=True,
                    help='Make the notes section read-only (requires binutils 2.38)')
+    p.add_argument('--root', metavar='PATH', type=Path, default="/",
+                   help='When a file (eg: /usr/lib/os-release) is parsed, open it relatively from this hierarchy')
     p.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
 
     opts = p.parse_args()
-
-    if opts.cpe is None:
-        opts.cpe = read_os_release('CPE_NAME')
-
-    if opts.rpm:
-        split = re.match(r'(.*?)-([0-9].*)\.(.*)', opts.rpm)
-        if not split:
-            raise ValueError('{!r} does not seem to be a valid package name'.format(opts.rpm))
-        opts.package_type = 'rpm'
-        opts.package_name = split.group(1)
-        opts.package_version = split.group(2)
-        opts.package_architecture = split.group(3)
 
     return opts
 
@@ -183,6 +175,24 @@ def json_serialize(s):
                       separators=(',', ':'))
 
 def gather_data(opts):
+    if opts.cpe == 'auto':
+        try:
+            with open(Path(opts.root, 'usr/lib/system-release-cpe'), 'r') as f:
+                opts.cpe = f.read()
+        except FileNotFoundError:
+            opts.cpe = read_os_release('CPE_NAME', root=opts.root)
+            if opts.cpe is None or opts.cpe == "":
+                raise ValueError(f"Could not read {opts.root}usr/lib/system-release-cpe or CPE_NAME from {opts.root}usr/lib/os-release")
+
+    if opts.rpm:
+        split = re.match(r'(.*?)-([0-9].*)\.(.*)', opts.rpm)
+        if not split:
+            raise ValueError('{!r} does not seem to be a valid package name'.format(opts.rpm))
+        opts.package_type = 'rpm'
+        opts.package_name = split.group(1)
+        opts.package_version = split.group(2)
+        opts.package_architecture = split.group(3)
+
     data = {
         'type':         opts.package_type,
         'name':         opts.package_name,
@@ -192,8 +202,8 @@ def gather_data(opts):
     if opts.cpe:
         data['osCpe'] = opts.cpe
     else:
-        data['os'] = read_os_release('ID')
-        data['osVersion'] = read_os_release('VERSION_ID')
+        data['os'] = read_os_release('ID', root=opts.root)
+        data['osVersion'] = read_os_release('VERSION_ID', root=opts.root)
     if opts.debug_info_url:
         data['debugInfoUrl'] = opts.debug_info_url
     return data

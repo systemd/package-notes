@@ -54,6 +54,7 @@
 
 json=
 readonly="(READONLY) "
+root=
 
 help() {
     echo "Usage: $0 [OPTION]..."
@@ -61,6 +62,8 @@ help() {
     echo
     echo "  -h, --help                      display this help and exit"
     echo "      --readonly BOOL             whether to add the READONLY attribute to script (default: true)"
+    echo "      --root PATH                 when a file (eg: os-release) is parsed, open it relatively to this hierarchy (default: not set)"
+    echo "      --cpe VALUE                 NIST CPE identifier of the vendor operating system, or 'auto' to parse from system-release-cpe or os-release"
     echo "      --package-type TYPE         set the package type (e.g. 'rpm' or 'deb')"
     echo "      --package-name NAME         set the package name"
     echo "      --package-version VERSION   set the package version"
@@ -92,6 +95,8 @@ append_parameter() {
 
 # Support the same fixed parameters as the python script
 parse_options() {
+    cpe=
+
     while :; do
         case $1 in
             -h|-\?|--help)
@@ -107,6 +112,13 @@ parse_options() {
                         readonly=""
                         ;;
                 esac
+                shift
+                ;;
+            --root)
+                if [ -z "${2}" ] || [ ! -d "${2}" ]; then
+                    invalid_argument "${1}"
+                fi
+                root="${2}"
                 shift
                 ;;
             --package-type)
@@ -126,7 +138,10 @@ parse_options() {
                 shift
                 ;;
             --cpe)
-                append_parameter "osCpe" "${2}"
+                if [ -z "${2}" ]; then
+                    invalid_argument "${1}"
+                fi
+                cpe="${2}"
                 shift
                 ;;
             --debug-info-url)
@@ -147,6 +162,26 @@ parse_options() {
 
         shift
     done
+
+    # Parse at the end, so that --root can be used in any position
+    if [ "${cpe}" = "auto" ]; then
+        if [ -r "${root}/usr/lib/system-release-cpe" ]; then
+            cpe="$(cat "${root}/usr/lib/system-release-cpe")"
+        elif [ -r "${root}/etc/os-release" ]; then
+            # shellcheck disable=SC1090 disable=SC1091
+            cpe="$(. "${root}/etc/os-release" && echo "${CPE_NAME}")"
+        elif [ -r "${root}/usr/lib/os-release" ]; then
+            # shellcheck disable=SC1090 disable=SC1091
+            cpe="$(. "${root}/usr/lib/os-release" && echo "${CPE_NAME}")"
+        fi
+        if [ -z "${cpe}" ]; then
+            printf 'ERROR: --cpe auto but cannot read %s/usr/lib/system-release-cpe or parse CPE_NAME from %s/etc/os-release or %s/usr/lib/os-release.\n' "${root}" "${root}" "${root}" >&2
+            exit 1
+        fi
+    fi
+    if [ -n "${cpe}" ]; then
+        append_parameter "osCpe" "${cpe}"
+    fi
 
     # Terminate the JSON object
     if [ -n "${json}" ]; then
@@ -235,8 +270,8 @@ write_script() {
 
 if ! parse_options "$@" && [ "$#" -gt 0 ]; then
     # Not supported on every distro
-    if [ -r /usr/lib/system-release-cpe ]; then
-        cpe="$(cat /usr/lib/system-release-cpe)"
+    if [ -r "${root}/usr/lib/system-release-cpe" ]; then
+        cpe="$(cat "${root}/usr/lib/system-release-cpe")"
         json_cpe=",\"osCpe\":\"${cpe}\""
     fi
 

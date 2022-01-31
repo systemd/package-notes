@@ -54,4 +54,4 @@
 # The command to actually generate the linker script that inserts the
 # notes file. This command is automatically used as part of the build
 # preamble.
-%_generate_package_note_file %[%_package_note_status?"if [ -f %{_rpmconfigdir}/generate-package-notes.sh ]; then %{_rpmconfigdir}/generate-package-notes.sh %[0%{?_package_note_readonly}?"":"--readonly no "]--package-name ${RPM_PACKAGE_NAME:?} --package-version ${RPM_PACKAGE_VERSION:?}-${RPM_PACKAGE_RELEASE:?} --package-architecture ${RPM_ARCH:?} >%{_package_note_file}; fi":""]
+%_generate_package_note_file %[%_package_note_status?"if [ -f %{_rpmconfigdir}/generate-package-notes.sh ]; then %{_rpmconfigdir}/generate-package-notes.sh %[0%{?_package_note_readonly}?"":"--readonly no "]--package-name ${RPM_PACKAGE_NAME:?} --package-version ${RPM_PACKAGE_VERSION:?}-${RPM_PACKAGE_RELEASE:?} --package-architecture ${RPM_ARCH:?} --cpe auto >%{_package_note_file}; fi":""]
