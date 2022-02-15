@@ -11,6 +11,7 @@ Vcs-Browser: https://github.com/systemd/package-notes
 
 Package: dh-package-notes
 Architecture: all
+Multi-Arch: foreign
 Enhances: debhelper
 Depends: ${misc:Depends}, ${perl:Depends}, debhelper,
 Provides: dh-sequence-package-notes
