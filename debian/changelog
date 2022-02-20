@@ -1,3 +1,9 @@
+package-notes (0.6) unstable; urgency=medium
+
+  * Mark package as Multi-Arch: foreign
+
+ -- Luca Boccassi <bluca@debian.org>  Sun, 20 Feb 2022 22:16:03 +0000
+
 package-notes (0.5) unstable; urgency=medium
 
   [ Zbigniew Jędrzejewski-Szmek ]
