@@ -37,7 +37,7 @@ B<dh-sequence-package-notes> to the Build-Depends or add
 B<--with package_notes> to the B<dh $@> call to make this happen.
 
 The package using B<dh_package_notes> also needs to manually set in debian/rules
-B<export DEB_LDFLAGS_MAINT_APPEND = -Wl,-dT,debian/.debhelper/notes.ld> as it is
+B<include /usr/share/debhelper/dh_package_notes/package-notes.mk> as it is
 not possible to do so from a debhelper addon.
 
 =cut

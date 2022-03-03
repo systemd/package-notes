@@ -2,3 +2,4 @@
 dh/dh_package_notes usr/bin
 generate-package-notes.sh => usr/bin/generate-package-notes
 dh/package_notes.pm usr/share/perl5/Debian/Debhelper/Sequence
+dh/package-notes.mk usr/share/debhelper/dh_package_notes
