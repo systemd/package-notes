@@ -11,6 +11,7 @@ use strict;
 use warnings;
 use Debian::Debhelper::Dh_Lib
   qw(%dh doit hostarch init isnative sourcepackage);
+use Dpkg::Vendor qw(get_current_vendor);
 our $VERSION = '0.6';
 
 =head1 SYNOPSIS
@@ -46,11 +47,12 @@ init();
 isnative( $dh{MAINPACKAGE} );    # Necessary to have $dh{VERSION}
 my $source_package = sourcepackage();
 my $package_arch   = hostarch();
+my $vendor         = get_current_vendor();
 my %options        = ( 'stdout' => "debian/.debhelper/notes.ld" );
 my @cmd            = (
     "/usr/bin/generate-package-notes",
     "--type",    "deb",
-    "--os",      "debian",
+    "--os",      lc ${vendor},
     "--name",    ${source_package},
     "--architecture", ${package_arch},
     "--version", $dh{VERSION},
