@@ -48,6 +48,10 @@ isnative( $dh{MAINPACKAGE} );    # Necessary to have $dh{VERSION}
 my $source_package = sourcepackage();
 my $package_arch   = hostarch();
 my $vendor         = get_current_vendor();
+my $url            = $ENV{'DEBUGINFOD_URLS'};
+if (!defined $url) {
+    $url = "https://debuginfod.debian.net";
+}
 my %options        = ( 'stdout' => "debian/.debhelper/notes.ld" );
 my @cmd            = (
     "/usr/bin/generate-package-notes",
@@ -56,7 +60,7 @@ my @cmd            = (
     "--name",    ${source_package},
     "--architecture", ${package_arch},
     "--version", $dh{VERSION},
-    "--debugInfoUrl",  "https://debuginfod.debian.net"
+    "--debugInfoUrl",  ${url}
 );
 
 if ( not mkdir("debian/.debhelper") ) {
