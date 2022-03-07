@@ -1,3 +1,11 @@
+package-notes (0.7) unstable; urgency=medium
+
+  * dh: derive distro name at build time
+  * dh: pick debuginfod from DEBUGINFOD_URLS env var if available
+  * dh: install makefile include to automatically set LDFLAGS
+
+ -- Luca Boccassi <bluca@debian.org>  Mon, 07 Mar 2022 11:40:22 +0000
+
 package-notes (0.6) unstable; urgency=medium
 
   * Mark package as Multi-Arch: foreign
