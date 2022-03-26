@@ -138,14 +138,10 @@ def encode_bytes_lines(arr, prefix='', label='string'):
 
 def encode_length(s, prefix='', label='string'):
     n = (len(s) + 1) * 4 // 4
-    n1 = n % 0x100
-    n2 = n // 0x100
-    assert n2 < 0x100
-    return prefix + encode_bytes([n1, n2, 0, 0]) + ' /* Length of {} including NUL */'.format(label)
+    return f'{prefix}LONG(0x{n:04x})                                /* Length of {label} including NUL */'
 
-def encode_note_id(arr, prefix=''):
-    assert len(arr) == 4
-    return prefix + encode_bytes(arr) + ' /* Note ID */'
+def encode_note_id(id, prefix=''):
+    return f'{prefix}LONG(0x{id:04x})                            /* Note ID */'
 
 def pad_string(s):
     return [0] * ((len(s) + 4) // 4 * 4 - len(s))
@@ -166,7 +162,7 @@ def encode_note(note_name, note_id, owner, value, readonly=True, prefix=''):
             l1, l2, l3, *l4, *l5,
             prefix + '}']
 
-NOTE_ID = [0x7E, 0x1A, 0xFE, 0xCA]
+NOTE_ID= 0xcafe1a7e
 
 def json_serialize(s):
     # Avoid taking space in the ELF header if there's no value to store
