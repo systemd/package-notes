@@ -253,11 +253,13 @@ write_script() {
 
     printf 'SECTIONS\n{\n'
     printf '    .note.package %s: ALIGN(4) {\n' "${readonly}"
-    printf '        BYTE(0x04) BYTE(0x00) BYTE(0x00) BYTE(0x00) /* Length of Owner including NUL */\n'
-    printf '        BYTE(0x%02x) BYTE(0x%02x) BYTE(0x00) BYTE(0x00) /* Length of Value including NUL */\n' \
-           $((value_len % 256)) $((value_len / 256))
+    # Note that for the binary fields we use the native 4 bytes type, to avoid
+    # endianness issues.
+    printf '        LONG(0x0004)                                /* Length of Owner including NUL */\n'
+    printf '        LONG(0x%04x)                                /* Length of Value including NUL */\n' \
+        ${value_len}
+    printf '        LONG(0xcafe1a7e)                            /* Note ID */\n'
 
-    printf '        BYTE(0x7e) BYTE(0x1a) BYTE(0xfe) BYTE(0xca) /* Note ID */\n'
     printf "        BYTE(0x46) BYTE(0x44) BYTE(0x4f) BYTE(0x00) /* Owner: 'FDO\\\\x00' */" # newline will be added by write_string
 
     write_string "$1" '        ' 'Value' "$value_len"

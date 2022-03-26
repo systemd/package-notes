@@ -1,9 +1,9 @@
 SECTIONS
 {
     .note.package (READONLY) : ALIGN(4) {
-        BYTE(0x04) BYTE(0x00) BYTE(0x00) BYTE(0x00) /* Length of Owner including NUL */
-        BYTE(0x33) BYTE(0x01) BYTE(0x00) BYTE(0x00) /* Length of Value including NUL */
-        BYTE(0x7e) BYTE(0x1a) BYTE(0xfe) BYTE(0xca) /* Note ID */
+        LONG(0x0004)                                /* Length of Owner including NUL */
+        LONG(0x0133)                                /* Length of Value including NUL */
+        LONG(0xcafe1a7e)                            /* Note ID */
         BYTE(0x46) BYTE(0x44) BYTE(0x4f) BYTE(0x00) /* Owner: 'FDO\x00' */
         BYTE(0x7b) BYTE(0x22) BYTE(0x74) BYTE(0x79) /* Value: '{"type":"rpm","name":"rust-plist+enable_unstable_features_that_may_break_with_minor_version_bumps-devel","version":"200:1.3.1~rc1.post2^final3","architecture":"ppc64le","osCpe":"cpe:/o:fedoraproject:fedora:35","debugInfoUrl":"https://somewhere.on.the.internet.there.is.a.server.which.is.never.wrong/query"}\x00\x00' */
         BYTE(0x70) BYTE(0x65) BYTE(0x22) BYTE(0x3a)
