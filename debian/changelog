@@ -1,3 +1,9 @@
+package-notes (0.8) unstable; urgency=medium
+
+  * use LONG instead of BYTEs for binary fields
+
+ -- Luca Boccassi <bluca@debian.org>  Mon, 04 Apr 2022 19:52:18 +0100
+
 package-notes (0.7) unstable; urgency=medium
 
   * dh: derive distro name at build time
