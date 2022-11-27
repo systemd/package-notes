@@ -2,9 +2,3 @@
 
 %:
 	dh $@
-
-execute_after_dh_auto_build:
-	pod2man $(CURDIR)/dh/dh_package_notes $(CURDIR)/debian/dh_package_notes.1
-
-execute_after_dh_auto_clean:
-	rm -f $(CURDIR)/debian/dh_package_notes.1

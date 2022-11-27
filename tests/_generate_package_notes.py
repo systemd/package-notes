@@ -1,1 +1,0 @@
-../generate-package-notes.py

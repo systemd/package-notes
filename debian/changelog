@@ -1,3 +1,9 @@
+package-notes (0.9) unstable; urgency=medium
+
+  * Switch to --package-metadata linker flag via specs file
+
+ -- Luca Boccassi <bluca@debian.org>  Sun, 27 Nov 2022 16:43:58 +0000
+
 package-notes (0.8) unstable; urgency=medium
 
   * use LONG instead of BYTEs for binary fields

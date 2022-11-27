@@ -1,0 +1,2 @@
+*link:
++ --package-metadata={\"type\":\"deb\",\"os\":\"%:getenv(DEB_VENDOR \",\"name\":\"%:getenv(DEB_SOURCE_PACKAGE_NAME \",\"version\":\"%:getenv(DEB_SOURCE_PACKAGE_VERSION \",\"architecture\":\"%:getenv(DEB_HOST_ARCH \",\"debugInfoUrl\":\"%:getenv(DEBUGINFOD_URLS \"})))))
