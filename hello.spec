@@ -9,13 +9,11 @@ Summary:        Aloha!
 
 License:        CC0
 
-BuildRequires:  binutils
+BuildRequires:  binutils >= 2.39
 BuildRequires:  gcc
 BuildRequires:  rpmdevtools
-BuildRequires:  python3
-BuildRequires:  python3-simplejson
 
-Source0:        generate-package-notes.py
+Source0:        rpm/redhat-package-notes.in
 
 %description
 Test with:
@@ -43,20 +41,11 @@ EOF
 %build
 set -eo pipefail
 
-ld_version="$(ld --version | sed -r -n '1 {s/.*version (.*)/\1/p}')"
-set +e
-rpmdev-vercmp "$ld_version" "2.38" >/dev/null
-if [ $? == 12 ]; then
-  readonly="--readonly=no"
-fi
-set -e
-
 %if %{with notes}
-python3 %{SOURCE0} $readonly --rpm '%{name}-%{VERSION}-%{RELEASE}.%{_arch}' | \
-        tee notes.ld
+sed "s|@OSCPE@|$(cat /usr/lib/system-release-cpe)|" %{SOURCE0} >redhat-package-notes
 %endif
 
-LDFLAGS="%{build_ldflags} %{?with_notes:-Wl,-dT,$PWD/notes.ld}"
+LDFLAGS="%{build_ldflags} %{?with_notes:-specs=$PWD/redhat-package-notes}"
 CFLAGS="%{build_cflags}"
 
 gcc -Wall -fPIC -o libhello.so -shared libhello.c $CFLAGS $LDFLAGS

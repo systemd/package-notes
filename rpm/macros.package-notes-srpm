@@ -6,52 +6,25 @@
 # See https://fedoraproject.org/wiki/Changes/Package_information_on_ELF_objects
 # for details.
 #
-# To opt out of the use of this feature completely, include this in
-# the spec file:
+# To opt out of the use of this feature completely, include this in the spec
+# file:
 #
-#   %undefine _package_note_file
+#   %undefine _package_note_flags
 #
-# The other macros can be undefined too to replace parts of the
-# functionality. If %_generate_package_note_file is undefined, the
-# linker script will not be generated, but the link flags may still
-# refer to it. This may be useful if the default generation method is
-# insufficient and a different mechanism will be used to generate
-# %_package_note_file. If %_package_note_flags is undefined, the
-# linker argument that injects the script will not be added to
-# %build_ldfags, but the linker script would still be generated.
-
-# The name of the file with the linker script. If %{buildsubdir} is
-# defined, the file will be placed therein. Otherwise, one level up,
-# directly in %{_builddir}.
-#
-# Note that %{version}-%{release} used here might be redefined from
-# the "primary" values when subpackages with different version-release
-# are specified. The contents of the script use the shell variable
-# $RPM_PACKAGE_NAME, $RPM_PACKAGE_VERSION, $RPM_PACKAGE_RELEASE,
-# and $RPM_ARCH that are set early and seem to always contain the "primary"
-# values for the main package.
-%_package_note_file     %{_builddir}%{?buildsubdir:/%{buildsubdir}}/.package_note-%{name}-%{version}-%{release}.%{_arch}.ld
-
-# Which linker will be used? This should be either "bfd", "gold", or
-# "lld". Unfortunately linkers other than bfd do not support some of
-# the options that we'd like to use, so if this is set to anything
-# other than "bfd", note insertion is disabled.
+# Which linker will be used? This should be either "bfd", "gold", "mold", or "lld".
 #
 # (The default linker for clang on armv7hl is lld.)
 %_package_note_linker   %["%_target_cpu" == "armv7hl" && "%{toolchain}" == "clang" ? "lld" : "bfd"]
 
-# Whether to specify the READONLY attribute for the inserted
-# section. We generally want this, but binutils <= 2.37 and other
-# linkers do not support it.
-%_package_note_readonly %["%_package_note_linker" == "bfd"?"1":"0"]
+# These are defined for backwards compatibility. Do not use.
+%_package_note_file     1
+%_generate_package_note_file %{nil}
 
 # Overall status: 1 if looks like we can insert the note, 0 otherwise
-%_package_note_status   %[0%{?_package_note_file:1} && 0%{?name:1} && "%_target_cpu" != "noarch" && "%_package_note_linker" == "bfd" ? 1 : 0]
+# Unfortunately "clang" does not support specs files so the note insertion is disabled when using it.
+%_package_note_status   %[0%{?_package_note_file:1} && 0%{?name:1} && "%_target_cpu" != "noarch" && "%{toolchain}" != "clang" ? 1 : 0]
 
-# The linker flags to be passed to the compiler to insert the notes section.
-%_package_note_flags    %[%_package_note_status?"-Wl,%["%_package_note_linker" != "lld"?"-dT":"-T"],%{_package_note_file}":""]
-
-# The command to actually generate the linker script that inserts the
-# notes file. This command is automatically used as part of the build
-# preamble.
-%_generate_package_note_file %[%_package_note_status?"if [ -f %{_rpmconfigdir}/generate-package-notes.sh ]; then %{_rpmconfigdir}/generate-package-notes.sh %[0%{?_package_note_readonly}?"":"--readonly no "]--package-name ${RPM_PACKAGE_NAME:?} --package-version ${RPM_PACKAGE_VERSION:?}-${RPM_PACKAGE_RELEASE:?} --package-architecture ${RPM_ARCH:?} --cpe auto >%{_package_note_file}; fi":""]
+# The linker flags to be passed to the compiler to insert the notes section will
+# be created by the spec file, to avoid issues with quoting and escaping across
+# different build systems and shells.
+%_package_note_flags    %[%_package_note_status ? "-specs=/usr/lib/rpm/redhat/redhat-package-notes" : ""]
