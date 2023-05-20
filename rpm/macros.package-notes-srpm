@@ -22,7 +22,8 @@
 
 # Overall status: 1 if looks like we can insert the note, 0 otherwise
 # Unfortunately "clang" does not support specs files so the note insertion is disabled when using it.
-%_package_note_status   %[0%{?_package_note_file:1} && 0%{?name:1} && "%_target_cpu" != "noarch" && "%{toolchain}" != "clang" ? 1 : 0]
+%_package_note_status   %{!?_package_note_flags:0}%{?_package_note_flags:%[0%{?_package_note_file:1} && 0%{?name:1} && "%_target_cpu" != "noarch" && "%{toolchain}" != "clang" ? 1 : 0]}
+
 
 # The linker flags to be passed to the compiler to insert the notes section will
 # be created by the spec file, to avoid issues with quoting and escaping across
