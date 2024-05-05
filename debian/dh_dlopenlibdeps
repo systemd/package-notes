@@ -1,0 +1,156 @@
+#!/usr/bin/perl
+# SPDX-License-Identifier: CC0-1.0
+
+=head1 NAME
+
+dh_dlopenlibdeps - parse dlopen library dependencies from ELF notes
+
+=cut
+
+use strict;
+use warnings;
+use Debian::Debhelper::Dh_Lib;
+
+our $VERSION = DH_BUILTIN_VERSION;
+
+=head1 SYNOPSIS
+
+B<dh_dlopenlibdeps> [S<I<debhelper options>>] [B<-X>I<item>]
+
+=head1 DESCRIPTION
+
+B<dh_dlopenlibdeps> is a debhelper program that is responsible for calculating
+dlopen library dependencies for packages.
+
+This program follows the dlopen notes metadata specification as defined at
+https://systemd.io/ELF_PACKAGE_METADATA/
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-X>I<item>, B<--exclude=>I<item>
+
+Exclude files that contain F<item> anywhere in their filename from being
+parsed. This will make their dependencies be ignored.
+This may be useful in some situations, but use it with caution. This option
+may be used more than once to exclude more than one thing.
+
+=back
+
+=cut
+
+init();
+
+on_pkgs_in_parallel {
+	my $is_elf_file = sub {
+		my ($file) = @_;
+		my @file_args = Debian::Debhelper::Dh_Lib::_internal_optional_file_args();
+		my $ff = qx_cmd('file', @file_args, '--brief', '-e', 'apptype', '-e', 'ascii',
+						'-e', 'encoding', '-e', 'cdf', '-e', 'compress', '-e', 'tar', '--', $file);
+		return 1 if $ff =~ m/ELF/;
+		return 0;
+	};
+
+	foreach my $package (@_) {
+		my $tmp = tmpdir($package);
+		my $ext = pkgext($package);
+		my (@filelist);
+		my %required_packages;
+		my %recommended_packages;
+		my %suggested_packages;
+
+		# Generate a list of ELF binaries in the package, ignoring any we were told to exclude.
+		my $find_options='';
+		if (defined($dh{EXCLUDE_FIND}) && $dh{EXCLUDE_FIND} ne '') {
+			$find_options="! \\( $dh{EXCLUDE_FIND} \\)";
+		}
+		next if not -d $tmp;
+		foreach my $file (split(/\n/, `find $tmp -type f \\( -perm /111 -or -name "*.so*" -or -name "*.cmxs" -or -name "*.node" \\) $find_options -print`)) {
+			# Prune directories that contain separated debug symbols.
+			# CAVEAT: There are files in /usr/lib/debug that are not detached debug symbols, which should be processed. (see #865982)
+			next if $file =~ m!^\Q$tmp\E/usr/lib/debug/(lib|lib64|usr|bin|sbin|opt|dev|emul|\.build-id)/!;
+			if ($is_elf_file->($file)) {
+				push @filelist, $file;
+			}
+		}
+
+		if (@filelist) {
+			my $required_sonames = '';
+			my $recommended_sonames = '';
+			my $suggested_sonames = '';
+
+			my $sonames = `dlopen-notes --sonames @filelist`;
+			foreach my $line (split(/\n/, $sonames)) {
+				my ($soname, $priority) = split(' ', $line, 2);
+
+				if ($priority eq 'required') {
+					$required_sonames .= " $soname";
+				} elsif ($priority eq 'recommended') {
+					$recommended_sonames .= " $soname";
+				} elsif ($priority eq 'suggested') {
+					$suggested_sonames .= " $soname";
+				} else {
+					warning("Unknown priority $priority for $soname");
+				}
+			}
+
+			if ($required_sonames) {
+				my $dpkg_query = `dpkg-query --search -- $required_sonames`;
+				foreach my $line (split(/\n/, $dpkg_query)) {
+					chomp $line;
+					if ($line =~ m/^local diversion |^diversion by/) {
+						next;
+					}
+					if ($line =~ m/^([-a-z0-9+]+):/) {
+						$required_packages{$1} = 1;
+					}
+				}
+			}
+
+			if ($recommended_sonames) {
+				my $dpkg_query = `dpkg-query --search -- $recommended_sonames`;
+				foreach my $line (split(/\n/, $dpkg_query)) {
+					chomp $line;
+					if ($line =~ m/^local diversion |^diversion by/) {
+						next;
+					}
+					if ($line =~ m/^([-a-z0-9+]+):/) {
+						$recommended_packages{$1} = 1;
+					}
+				}
+			}
+
+			if ($suggested_sonames) {
+				my $dpkg_query = `dpkg-query --search -- $suggested_sonames`;
+				foreach my $line (split(/\n/, $dpkg_query)) {
+					chomp $line;
+					if ($line =~ m/^local diversion |^diversion by/) {
+						next;
+					}
+					if ($line =~ m/^([-a-z0-9+]+):/) {
+						$suggested_packages{$1} = 1;
+					}
+				}
+			}
+		}
+
+		# Always write the substvars file, even if it's empty, so that the variables are defined and
+		# there are no warnings when using them in the control file.
+		open(SV, ">>debian/${ext}substvars") || error("open debian/${ext}substvars: $!");
+		print SV "dlopen:Depends=" . join(", ", sort keys %required_packages) . "\n";
+		print SV "dlopen:Recommends=" . join(", ", sort keys %recommended_packages) . "\n";
+		print SV "dlopen:Suggests=" . join(", ", sort keys %suggested_packages) . "\n";
+		close(SV);
+	}
+};
+
+=head1 SEE ALSO
+
+L<debhelper(7)>, L<dh_shlibsdeps(1)>
+
+=head1 AUTHOR
+
+Luca Boccassi <bluca@debian.org>
+
+=cut

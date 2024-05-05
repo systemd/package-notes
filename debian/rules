@@ -2,3 +2,9 @@
 
 %:
 	dh $@
+
+execute_after_dh_auto_build:
+	pod2man --utf8 $(CURDIR)/debian/dh_dlopenlibdeps > $(CURDIR)/debian/dh_dlopenlibdeps.1
+
+execute_after_dh_auto_clean:
+	rm -f $(CURDIR)/debian/dh_dlopenlibdeps.1
