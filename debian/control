@@ -7,7 +7,7 @@ Build-Depends: debhelper-compat (= 13),
                python3:native <!nocheck>,
                python3-pyelftools:native <!nocheck>,
                python3-pytest:native <!nocheck>,
-Standards-Version: 4.6.1
+Standards-Version: 4.7.0
 Homepage: https://systemd.io/ELF_PACKAGE_METADATA/
 Vcs-Git: https://github.com/systemd/package-notes.git
 Vcs-Browser: https://github.com/systemd/package-notes
