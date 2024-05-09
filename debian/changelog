@@ -1,3 +1,11 @@
+package-notes (0.10) unstable; urgency=medium
+
+  * Add Python script to parse dlopen ELF notes
+  * Add Debian tool for dlopen-notes
+  * d/control: bump Standards-Version to 4.7.0, no changes
+
+ -- Luca Boccassi <bluca@debian.org>  Thu, 09 May 2024 10:17:51 +0100
+
 package-notes (0.9) unstable; urgency=medium
 
   * Switch to --package-metadata linker flag via specs file
