@@ -1,0 +1,3 @@
+debian/dlopenlibdeps.pm usr/share/perl5/Debian/Debhelper/Sequence
+debian/dh_dlopenlibdeps usr/bin
+usr/bin/dlopen-notes

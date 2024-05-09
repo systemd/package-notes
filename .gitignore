@@ -1,6 +1,7 @@
 *.sw*
 /*.src.rpm
 /*.log
+/test/notes
 !/debian/changelog
 !/debian/control
 !/debian/copyright

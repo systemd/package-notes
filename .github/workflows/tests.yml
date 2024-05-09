@@ -1,0 +1,25 @@
+---
+# SPDX-License-Identifier: CC0-1.0
+# vi: ts=2 sw=2 et:
+
+name: Run tests
+on: [pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Repository checkout
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt -y update && sudo apt -y install python3-pyelftools python3-pytest
+      - name: Run tests
+        run: make check
