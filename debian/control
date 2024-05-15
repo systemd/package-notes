@@ -4,9 +4,9 @@ Priority: optional
 Rules-Requires-Root: no
 Maintainer: Luca Boccassi <bluca@debian.org>
 Build-Depends: debhelper-compat (= 13),
-               python3:native <!nocheck>,
-               python3-pyelftools:native <!nocheck>,
-               python3-pytest:native <!nocheck>,
+               python3 <!nocheck>,
+               python3-pyelftools <!nocheck>,
+               python3-pytest <!nocheck>,
 Standards-Version: 4.7.0
 Homepage: https://systemd.io/ELF_PACKAGE_METADATA/
 Vcs-Git: https://github.com/systemd/package-notes.git
