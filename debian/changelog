@@ -1,3 +1,10 @@
+package-notes (0.11) unstable; urgency=medium
+
+  * d/control: drop 'native' from build dependencies
+  * d/control: add doc link for dlopen spec
+
+ -- Luca Boccassi <bluca@debian.org>  Wed, 15 May 2024 18:22:46 +0100
+
 package-notes (0.10) unstable; urgency=medium
 
   * Add Python script to parse dlopen ELF notes
