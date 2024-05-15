@@ -34,3 +34,4 @@ Provides: dh-sequence-dlopenlibdeps,
 Description: Debian Helper for parsing dlopen metadata from ELF binaries
  Parses dlopen ELF note and generates dependencies from it that can be used
  via ${dlopen:Depends|Recommends|Suggests}
+ See: https://systemd.io/ELF_DLOPEN_METADATA/
