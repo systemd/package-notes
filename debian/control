@@ -28,7 +28,7 @@ Enhances: debhelper
 Depends: ${misc:Depends},
          ${perl:Depends},
          debhelper,
-         python3,
+         python3:any,
          python3-pyelftools,
 Provides: dh-sequence-dlopenlibdeps,
 Description: Debian Helper for parsing dlopen metadata from ELF binaries
