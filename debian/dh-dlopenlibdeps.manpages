@@ -1,1 +1,2 @@
 debian/dh_dlopenlibdeps.1
+usr/share/man/man1/dlopen-notes.1
