@@ -134,7 +134,14 @@ def parse_args():
                    metavar='FEATURE1,FEATURE2',
                    help='describe features, can be specified multiple times')
     p.add_argument('filenames', nargs='+', metavar='filename')
-    return p.parse_args()
+
+    args = p.parse_args()
+
+    if not args.raw and args.features is None and not args.sonames:
+        # Make --raw the default if no action is specified.
+        args.raw = True
+
+    return args
 
 if __name__ == '__main__':
     args = parse_args()
