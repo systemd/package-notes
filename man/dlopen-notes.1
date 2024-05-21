@@ -1,0 +1,36 @@
+.TH DLOPEN\-NOTES 1 "May 2024"
+.SH NAME
+dlopen\-notes \- parses dlopen elf metadata
+.SH SYNOPSIS
+.B dlopen\-notes
+.RI [ OPTION ...]
+.SH DESCRIPTION
+ELF binaries store link-time dependencies in their headers, which can be parsed
+by various tools. There is no machine-readable metadata about dependencies
+loaded at build time via
+.BR \%dlopen (3)
+available by default. The ELF Dlopen Metadata specification aims to fill this
+gap, by defining a common format.
+.PP
+This tool allows parsing such a note, and printing out the result in various
+formats.
+.SH OPTIONS
+.TP
+.BI \-\-raw
+Show the original JSON extracted from input files
+.TP
+.BI \-\-sonames
+List all sonames and their priorities, one soname per line
+.TP
+.BI \-\-features= [FEATURE...]
+Print the description of the specified features
+.TP
+.BR \-h ", " \-\-help
+Show a short help message and exit.
+.SH SEE ALSO
+.ad l
+.nh
+.BR dh\-dlopenlibdeps (1),
+.UR https://systemd.io/ELF_DLOPEN_METADATA/
+.B Dlopen Metadata for ELF Files
+.UE
