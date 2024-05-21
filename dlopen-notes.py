@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: CC0-1.0
 
 """\
-Read .note.dlopen notes from ELF files and report the contents
+Read .note.dlopen notes from ELF files and report the contents.
 """
 
 import argparse
@@ -119,21 +119,32 @@ def group_by_feature(filenames, notes):
     return features
 
 def parse_args():
-    p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--raw',
+    p = argparse.ArgumentParser(
+        description=__doc__,
+        allow_abbrev=False,
+        add_help=False,
+        epilog='If no option is specifed, --raw is the default.',
+    )
+    p.add_argument('-r', '--raw',
                    action='store_true',
-                   help='show the original JSON extracted from input files')
-    p.add_argument('--sonames',
+                   help='Show the original JSON extracted from input files')
+    p.add_argument('-s', '--sonames',
                    action='store_true',
-                   help='list all sonames and their priorities, one soname per line')
-    p.add_argument('--features',
+                   help='List all sonames and their priorities, one soname per line')
+    p.add_argument('-f', '--features',
                    nargs='?',
                    const=[],
                    type=lambda s: s.split(','),
                    action='extend',
                    metavar='FEATURE1,FEATURE2',
-                   help='describe features, can be specified multiple times')
-    p.add_argument('filenames', nargs='+', metavar='filename')
+                   help='Describe features, can be specified multiple times')
+    p.add_argument('filenames',
+                   nargs='+',
+                   metavar='filename',
+                   help='Library file to extract notes from')
+    p.add_argument('-h', '--help',
+                   action='help',
+                   help='Show this help message and exit')
 
     args = p.parse_args()
 
