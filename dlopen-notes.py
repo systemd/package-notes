@@ -118,7 +118,7 @@ def group_by_feature(filenames, notes):
 
     return features
 
-def parse_args():
+def make_parser():
     p = argparse.ArgumentParser(
         description=__doc__,
         allow_abbrev=False,
@@ -145,8 +145,10 @@ def parse_args():
     p.add_argument('-h', '--help',
                    action='help',
                    help='Show this help message and exit')
+    return p
 
-    args = p.parse_args()
+def parse_args():
+    args = make_parser().parse_args()
 
     if not args.raw and args.features is None and not args.sonames:
         # Make --raw the default if no action is specified.

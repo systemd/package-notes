@@ -11,3 +11,4 @@
 !/debian/rules
 !/debian/source/format
 __pycache__/
+/dlopen-notes.1

@@ -1,0 +1,11 @@
+/report the contents/
+.PP
+ELF binaries store link-time dependencies in their headers, which can be parsed
+by various tools. There is no machine-readable metadata about dependencies
+loaded at build time via
+.BR \%dlopen (3)
+available by default. The ELF Dlopen Metadata specification aims to fill this
+gap, by defining a common format.
+.PP
+This tool allows parsing such a note, and printing out the result in various
+formats.
