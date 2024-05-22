@@ -1,3 +1,20 @@
+package-notes (0.12) unstable; urgency=medium
+
+  [ Luca Boccassi ]
+  * d/control: mark python3 dependency with 'any' as per multiarch hinter
+
+  [ Zbigniew Jędrzejewski-Szmek ]
+  * dlopen-notes: make --raw the default action
+  * dlopen-notes: add short option args and forbid abbrevs
+  * dlopen-notes: generate man page using argparse-manpage
+
+  [ Luca Boccassi ]
+  * manpage: check in git
+  * makefile: install manpage too
+  * debian: install dlopen-notes manpage
+
+ -- Luca Boccassi <bluca@debian.org>  Wed, 22 May 2024 15:35:08 +0100
+
 package-notes (0.11) unstable; urgency=medium
 
   * d/control: drop 'native' from build dependencies
