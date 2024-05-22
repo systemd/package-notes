@@ -2,7 +2,7 @@ all:
 
 dlopen-notes.1: dlopen-notes.py docs/dlopen-description.man Makefile
 	argparse-manpage 	\
-		--output=$@ 	\
+		--output=docs/$@ 	\
 		--pyfile=$< 	\
 		--function=make_parser \
 		--project-name=package-notes \
