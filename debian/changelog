@@ -1,3 +1,9 @@
+package-notes (0.13) unstable; urgency=medium
+
+  * debian/package-notes.mk: skip when linking with llvm
+
+ -- Luca Boccassi <bluca@debian.org>  Sun, 02 Jun 2024 00:03:26 +0100
+
 package-notes (0.12) unstable; urgency=medium
 
   [ Luca Boccassi ]
