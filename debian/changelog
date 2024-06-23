@@ -1,3 +1,9 @@
+package-notes (0.14) unstable; urgency=medium
+
+  * d/package-notes.mk: change to no-op on Ubuntu
+
+ -- Luca Boccassi <bluca@debian.org>  Sun, 23 Jun 2024 17:18:48 +0100
+
 package-notes (0.13) unstable; urgency=medium
 
   * debian/package-notes.mk: skip when linking with llvm
