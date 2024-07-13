@@ -2,8 +2,10 @@
 # Include from debian/rules to use with dh_package_notes.
 # See dh_package_notes(1) for details
 
-# llvm does not support spec files
+# llvm does not support spec files. Check for Meson-specific env vars too.
 ifeq ( ,$(filter lld, $(LD)))
+ifeq ( ,$(filter lld, $(CC_LD)))
+ifeq ( ,$(filter lld, $(CXX_LD)))
 # Ubuntu implemented this in dpkg-buildpackage, make this a no-op to avoid duplication
 include /usr/share/dpkg/vendor.mk
 ifneq ($(DEB_VENDOR),Ubuntu)
@@ -17,6 +19,8 @@ export DEB_SOURCE_PACKAGE_NAME=$(shell dpkg-parsechangelog -S Source)
 # Set by /usr/share/dpkg/vendor.mk
 export DEB_VENDOR
 export DEB_LDFLAGS_MAINT_APPEND+= -specs=/usr/share/debhelper/dh_package_notes/debian-package-notes.specs
+endif
+endif
 endif
 endif
 endif
