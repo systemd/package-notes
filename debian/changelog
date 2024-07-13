@@ -1,3 +1,9 @@
+package-notes (0.15) unstable; urgency=medium
+
+  * d/package-notes.mk: also check Meson specific LD env var
+
+ -- Luca Boccassi <bluca@debian.org>  Sat, 13 Jul 2024 13:10:31 +0100
+
 package-notes (0.14) unstable; urgency=medium
 
   * d/package-notes.mk: change to no-op on Ubuntu
