@@ -5,7 +5,7 @@ by various tools. There is no machine-readable metadata about dependencies
 loaded at build time via
 .BR \%dlopen (3)
 available by default. The ELF Dlopen Metadata specification aims to fill this
-gap, by defining a common format.
+gap by defining a common format. See https://systemd.io/ELF_DLOPEN_METADATA/.
 .PP
 This tool allows parsing such a note, and printing out the result in various
 formats.
