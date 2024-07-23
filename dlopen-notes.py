@@ -24,40 +24,44 @@ def listify(f):
         return list(f(*args, **kwargs))
     return functools.update_wrapper(wrap, f)
 
-@listify
-def read_dlopen_notes(filename):
-    elffile = ELFFile(open(filename, 'rb'))
+class ELFFileReader:
+    def __init__(self, filename):
+        self.filename = filename
+        self.elffile = ELFFile(open(filename, 'rb'))
 
-    for section in elffile.iter_sections():
-        if not isinstance(section, NoteSection) or section.name != '.note.dlopen':
-            continue
-
-        for note in section.iter_notes():
-            if note['n_type'] != 0x407c0c0a or note['n_name'] != 'FDO':
-                continue
-            note_desc = note['n_desc']
-
-            try:
-                # On older Python versions (e.g.: Ubuntu 22.04) we get a string, on
-                # newer versions a bytestring
-                if not isinstance(note_desc, str):
-                    text = note_desc.decode('utf-8').rstrip('\0')
-                else:
-                    text = note_desc.rstrip('\0')
-            except UnicodeDecodeError as e:
-                raise ValueError(f'{filename}: Invalid UTF-8 in .note.dlopen n_desc') from e
-
-            try:
-                j = json.loads(text)
-            except json.JSONDecodeError as e:
-                raise ValueError(f'{filename}: Invalid JSON in .note.dlopen note_desc') from e
-
-            if not isinstance(j, list):
-                print(f'{filename}: ignoring .note.dlopen n_desc with JSON that is not a list',
-                      file=sys.stderr)
+    @functools.cache
+    @listify
+    def notes(self):
+        for section in self.elffile.iter_sections():
+            if not isinstance(section, NoteSection) or section.name != '.note.dlopen':
                 continue
 
-            yield from j
+            for note in section.iter_notes():
+                if note['n_type'] != 0x407c0c0a or note['n_name'] != 'FDO':
+                    continue
+                note_desc = note['n_desc']
+
+                try:
+                    # On older Python versions (e.g.: Ubuntu 22.04) we get a string, on
+                    # newer versions a bytestring
+                    if not isinstance(note_desc, str):
+                        text = note_desc.decode('utf-8').rstrip('\0')
+                    else:
+                        text = note_desc.rstrip('\0')
+                except UnicodeDecodeError as e:
+                    raise ValueError(f'{self.filename}: Invalid UTF-8 in .note.dlopen n_desc') from e
+
+                try:
+                    j = json.loads(text)
+                except json.JSONDecodeError as e:
+                    raise ValueError(f'{self.filename}: Invalid JSON in .note.dlopen note_desc') from e
+
+                if not isinstance(j, list):
+                    print(f'{self.filename}: ignoring .note.dlopen n_desc with JSON that is not a list',
+                          file=sys.stderr)
+                    continue
+
+                yield from j
 
 def dictify(f):
     def wrap(*args, **kwargs):
@@ -65,9 +69,9 @@ def dictify(f):
     return functools.update_wrapper(wrap, f)
 
 @dictify
-def group_by_soname(notes):
-    for note in notes:
-        for element in note:
+def group_by_soname(elffiles):
+    for elffile in elffiles:
+        for element in elffile.notes():
             priority = element.get('priority', 'recommended')
             for soname in element['soname']:
                 yield soname, priority
@@ -80,7 +84,7 @@ class Priority(enum.Enum):
     def __lt__(self, other):
         return self.value < other.value
 
-def group_by_feature(filenames, notes):
+def group_by_feature(elffiles):
     features = {}
 
     # We expect each note to be in the format:
@@ -92,8 +96,8 @@ def group_by_feature(filenames, notes):
     #     "soname": ["..."],
     #   }
     # ]
-    for filename, note_group in zip(filenames, notes):
-        for note in note_group:
+    for elffiles in elffiles:
+        for note in elffiles.notes():
             prio = Priority[note.get('priority', 'recommened')]
             feature_name = note['feature']
 
@@ -108,7 +112,7 @@ def group_by_feature(filenames, notes):
             else:
                 # Merge
                 if feature['description'] != note.get('description', ''):
-                    print(f"{filename}: feature {note['feature']!r} found with different description, ignoring",
+                    print(f"{note.filename}: feature {note['feature']!r} found with different description, ignoring",
                           file=sys.stderr)
 
                 for soname in note['soname']:
@@ -117,6 +121,15 @@ def group_by_feature(filenames, notes):
                     feature['sonames'][soname] = highest
 
     return features
+
+def filter_features(features, filter):
+    if filter is None:
+        return None
+    ans = { name:feature for name,feature in features.items()
+            if name in filter or not filter }
+    if missing := set(filter) - set(ans):
+        sys.exit('Some features not found:', ', '.join(missing))
+    return ans
 
 def make_parser():
     p = argparse.ArgumentParser(
@@ -169,27 +182,21 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
 
-    notes = [read_dlopen_notes(filename) for filename in args.filenames]
+    elffiles = [ELFFileReader(filename) for filename in args.filenames]
+    features = group_by_feature(elffiles)
 
     if args.raw:
-        for filename, note in zip(args.filenames, notes):
-            print(f'# {filename}')
-            print_json(json.dumps(note, indent=2))
+        for elffile in elffiles:
+            print(f'# {elffile.filename}')
+            print_json(json.dumps(elffile.notes(), indent=2))
 
-    if args.features is not None:
-        features = group_by_feature(args.filenames, notes)
-
-        toprint = {name:feature for name,feature in features.items()
-                   if name in args.features or not args.features}
-        if len(toprint) < len(args.features):
-            sys.exit('Some features were not found')
-
+    if features_to_print := filter_features(features, args.features):
         print('# grouped by feature')
-        print_json(json.dumps(toprint,
+        print_json(json.dumps(features_to_print,
                               indent=2,
                               default=lambda prio: prio.name))
 
     if args.sonames:
-        sonames = group_by_soname(notes)
+        sonames = group_by_soname(elffiles)
         for soname in sorted(sonames.keys()):
             print(f"{soname} {sonames[soname]}")

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: CC0-1.0
 
-from _notes import read_dlopen_notes, group_by_soname
+from _notes import ELFFileReader, group_by_soname
 
 def test_notes():
     expected = {
@@ -11,5 +11,5 @@ def test_notes():
         'libtss2-esys.so.0': 'recommended',
         'libtss2-mu.so.0': 'recommended',
     }
-    notes = [read_dlopen_notes('notes')]
+    notes = [ELFFileReader('notes')]
     assert group_by_soname(notes) == expected
