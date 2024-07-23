@@ -1,5 +1,7 @@
 all:
 
+man: dlopen-notes.1
+
 dlopen-notes.1: dlopen-notes.py docs/dlopen-description.man Makefile
 	argparse-manpage 	\
 		--output=docs/$@ 	\
