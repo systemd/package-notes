@@ -125,26 +125,36 @@ def make_parser():
         add_help=False,
         epilog='If no option is specifed, --raw is the default.',
     )
-    p.add_argument('-r', '--raw',
-                   action='store_true',
-                   help='Show the original JSON extracted from input files')
-    p.add_argument('-s', '--sonames',
-                   action='store_true',
-                   help='List all sonames and their priorities, one soname per line')
-    p.add_argument('-f', '--features',
-                   nargs='?',
-                   const=[],
-                   type=lambda s: s.split(','),
-                   action='extend',
-                   metavar='FEATURE1,FEATURE2',
-                   help='Describe features, can be specified multiple times')
-    p.add_argument('filenames',
-                   nargs='+',
-                   metavar='filename',
-                   help='Library file to extract notes from')
-    p.add_argument('-h', '--help',
-                   action='help',
-                   help='Show this help message and exit')
+    p.add_argument(
+        '-r', '--raw',
+        action='store_true',
+        help='Show the original JSON extracted from input files',
+    )
+    p.add_argument(
+        '-s', '--sonames',
+        action='store_true',
+        help='List all sonames and their priorities, one soname per line',
+    )
+    p.add_argument(
+        '-f', '--features',
+        nargs='?',
+        const=[],
+        type=lambda s: s.split(','),
+        action='extend',
+        metavar='FEATURE1,FEATURE2',
+        help='Describe features, can be specified multiple times',
+    )
+    p.add_argument(
+        'filenames',
+        nargs='+',
+        metavar='filename',
+        help='Library file to extract notes from',
+    )
+    p.add_argument(
+        '-h', '--help',
+        action='help',
+        help='Show this help message and exit',
+    )
     return p
 
 def parse_args():
