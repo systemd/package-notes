@@ -131,6 +131,18 @@ def filter_features(features, filter):
         sys.exit('Some features not found:', ', '.join(missing))
     return ans
 
+@listify
+def generate_rpm(elffiles, stanza, filter):
+    # Produces output like:
+    # Requires: libqrencode.so.4()(64bit)
+    # Requires: libzstd.so.1()(64bit)
+    for elffile in elffiles:
+        suffix = '()(64bit)' if elffile.elffile.elfclass == 64 else ''
+        for note in elffile.notes():
+            if note['feature'] in filter or not filter:
+                soname = next(iter(note['soname']))  # we take the first — most recommended — soname
+                yield f"{stanza}: {soname}{suffix}"
+
 def make_parser():
     p = argparse.ArgumentParser(
         description=__doc__,
@@ -158,6 +170,24 @@ def make_parser():
         help='Describe features, can be specified multiple times',
     )
     p.add_argument(
+        '--rpm-requires',
+        nargs='?',
+        const=[],
+        type=lambda s: s.split(','),
+        action='extend',
+        metavar='FEATURE1,FEATURE2',
+        help='Generate rpm Requires for listed features',
+    )
+    p.add_argument(
+        '--rpm-recommends',
+        nargs='?',
+        const=[],
+        type=lambda s: s.split(','),
+        action='extend',
+        metavar='FEATURE1,FEATURE2',
+        help='Generate rpm Recommends for listed features',
+    )
+    p.add_argument(
         'filenames',
         nargs='+',
         metavar='filename',
@@ -173,7 +203,11 @@ def make_parser():
 def parse_args():
     args = make_parser().parse_args()
 
-    if not args.raw and args.features is None and not args.sonames:
+    if (not args.raw
+        and not args.sonames
+        and args.features is None
+        and args.rpm_requires is None
+        and args.rpm_recommends is None):
         # Make --raw the default if no action is specified.
         args.raw = True
 
@@ -195,6 +229,14 @@ if __name__ == '__main__':
         print_json(json.dumps(features_to_print,
                               indent=2,
                               default=lambda prio: prio.name))
+
+    if args.rpm_requires is not None:
+        lines = generate_rpm(elffiles, 'Requires', args.rpm_requires)
+        print('\n'.join(lines))
+
+    if args.rpm_recommends is not None:
+        lines = generate_rpm(elffiles, 'Recommends', args.rpm_recommends)
+        print('\n'.join(lines))
 
     if args.sonames:
         sonames = group_by_soname(elffiles)
