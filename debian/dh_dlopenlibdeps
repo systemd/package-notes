@@ -23,7 +23,7 @@ B<dh_dlopenlibdeps> is a debhelper program that is responsible for calculating
 dlopen library dependencies for packages.
 
 This program follows the dlopen notes metadata specification as defined at
-https://systemd.io/ELF_PACKAGE_METADATA/
+https://systemd.io/ELF_DLOPEN_METADATA/
 
 =head1 OPTIONS
 
