@@ -153,8 +153,8 @@ The package metadata specification for \s-1ELF\s0 binaries can be found at
 .PP
 \&\fBdh_package_notes\fR provides a linker specs file at
 \&\fB/usr/share/debhelper/dh_package_notes/debian\-package\-notes.specs\fR which can be
-used by including \fB/usr/share/debhelper/dh_package_notes/debian\-package\-notes.mk\fR
-at the dop of \fBdebian/rules\fR. This will export the right environment variables
+used by including \fB/usr/share/debhelper/dh_package_notes/package\-notes.mk\fR
+at the top of \fBdebian/rules\fR. This will export the right environment variables
 that will result in a package note \s-1ELF\s0 section being added to all packaged \s-1ELF\s0
 files, with the package type set to \fBdeb\fR, the package name and version set to
 the source package name and version respectively, the \s-1OS\s0 set to \fBDebian\fR and
