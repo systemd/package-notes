@@ -1,3 +1,9 @@
+package-notes (0.17) unstable; urgency=medium
+
+  * test: do not fail if order of items changes
+
+ -- Luca Boccassi <bluca@debian.org>  Sun, 05 Oct 2025 20:08:55 +0100
+
 package-notes (0.16) unstable; urgency=medium
 
   [ Zbigniew Jędrzejewski-Szmek ]
