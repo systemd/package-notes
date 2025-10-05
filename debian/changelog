@@ -1,3 +1,21 @@
+package-notes (0.16) unstable; urgency=medium
+
+  [ Zbigniew Jędrzejewski-Szmek ]
+  * man: link to the spec in --help/man page
+  * Makefile: add 'man' target for ease-of-use
+  * refactor: use same style for ArgumentParser and the args
+  * refactor: turn the code to read notes into a class
+  * dlopen-notes: add mode to generate rpm Provides/Requires
+  * README: show how to actually show the notes
+
+  [ Simon McVittie ]
+  * d/dh_dlopenlibdeps: Refer to the correct specification
+  * d/dh_package_notes.1: Fix typos
+  * dh_dlopenlibdeps: Debian package names can contain dots (Closes:
+    #1117245)
+
+ -- Luca Boccassi <bluca@debian.org>  Sun, 05 Oct 2025 17:58:08 +0100
+
 package-notes (0.15) unstable; urgency=medium
 
   * d/package-notes.mk: also check Meson specific LD env var
