@@ -102,7 +102,7 @@ on_pkgs_in_parallel {
 					if ($line =~ m/^local diversion |^diversion by/) {
 						next;
 					}
-					if ($line =~ m/^([-a-z0-9+]+):/) {
+					if ($line =~ m/^([-a-z0-9+.]+):/) {
 						$required_packages{$1} = 1;
 					}
 				}
@@ -115,7 +115,7 @@ on_pkgs_in_parallel {
 					if ($line =~ m/^local diversion |^diversion by/) {
 						next;
 					}
-					if ($line =~ m/^([-a-z0-9+]+):/) {
+					if ($line =~ m/^([-a-z0-9+.]+):/) {
 						$recommended_packages{$1} = 1;
 					}
 				}
@@ -128,7 +128,7 @@ on_pkgs_in_parallel {
 					if ($line =~ m/^local diversion |^diversion by/) {
 						next;
 					}
-					if ($line =~ m/^([-a-z0-9+]+):/) {
+					if ($line =~ m/^([-a-z0-9+.]+):/) {
 						$suggested_packages{$1} = 1;
 					}
 				}
