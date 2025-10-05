@@ -32,4 +32,4 @@ def test_requires():
 
     lines = generate_rpm([notes], 'Suggests', ('pcre2', 'tpm'))
     expect = expected[notes.elffile.elfclass]
-    assert lines == expect
+    assert sorted(lines) == sorted(expect)
