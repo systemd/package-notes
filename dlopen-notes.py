@@ -98,7 +98,7 @@ def group_by_feature(elffiles):
     # ]
     for elffiles in elffiles:
         for note in elffiles.notes():
-            prio = Priority[note.get('priority', 'recommened')]
+            prio = Priority[note.get('priority', 'recommended')]
             feature_name = note['feature']
 
             try:
