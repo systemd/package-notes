@@ -19,6 +19,11 @@ try:
 except ImportError:
     print_json = print
 
+def dictify(f):
+    def wrap(*args, **kwargs):
+        return dict(f(*args, **kwargs))
+    return functools.update_wrapper(wrap, f)
+
 def listify(f):
     def wrap(*args, **kwargs):
         return list(f(*args, **kwargs))
@@ -62,11 +67,6 @@ class ELFFileReader:
                     continue
 
                 yield from j
-
-def dictify(f):
-    def wrap(*args, **kwargs):
-        return dict(f(*args, **kwargs))
-    return functools.update_wrapper(wrap, f)
 
 @dictify
 def group_by_soname(elffiles):
