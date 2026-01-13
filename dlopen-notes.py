@@ -7,6 +7,7 @@ Read .note.dlopen notes from ELF files and report the contents.
 
 import argparse
 import enum
+import fnmatch
 import functools
 import json
 import sys
@@ -18,6 +19,11 @@ try:
     print_json = rich.print_json
 except ImportError:
     print_json = print
+
+def dictify(f):
+    def wrap(*args, **kwargs):
+        return dict(f(*args, **kwargs))
+    return functools.update_wrapper(wrap, f)
 
 def listify(f):
     def wrap(*args, **kwargs):
@@ -63,11 +69,6 @@ class ELFFileReader:
 
                 yield from j
 
-def dictify(f):
-    def wrap(*args, **kwargs):
-        return dict(f(*args, **kwargs))
-    return functools.update_wrapper(wrap, f)
-
 @dictify
 def group_by_soname(elffiles):
     for elffile in elffiles:
@@ -83,6 +84,16 @@ class Priority(enum.Enum):
 
     def __lt__(self, other):
         return self.value < other.value
+
+    def rpm_name(self):
+        if self == self.__class__.suggested:
+            return 'Suggests'
+        if self == self.__class__.recommended:
+            return 'Recommends'
+        if self == self.__class__.required:
+            return 'Requires'
+        raise ValueError
+
 
 def group_by_feature(elffiles):
     features = {}
@@ -143,6 +154,52 @@ def generate_rpm(elffiles, stanza, filter):
                 soname = next(iter(note['soname']))  # we take the first — most recommended — soname
                 yield f"{stanza}: {soname}{suffix}"
 
+def rpm_fileattr_generator(args):
+    if args.rpm_features is not None:
+        if not any(fnmatch.fnmatch(args.subpackage, pattern[0])
+                   for pattern in args.rpm_features):
+            # Current subpackage is not listed, nothing to do.
+            # Consume all input as required by the protocol.
+            sys.stdin.read()
+            return
+
+    for file in sys.stdin:
+        file = file.strip()
+        if not file:
+            continue  # ignore empty lines
+
+        elffile = ELFFileReader(file)
+        suffix = '()(64bit)' if elffile.elffile.elfclass == 64 else ''
+
+        first = True
+
+        for note in elffile.notes():
+            # Feature name is optional. Allow this to be matched
+            # by the empty string ('') or a wildcard glob ('*').
+            feature = note.get('feature', '')
+
+            if args.rpm_features is not None:
+                for package_pattern,feature_pattern in args.rpm_features:
+                    if (fnmatch.fnmatch(args.subpackage, package_pattern) and
+                        fnmatch.fnmatch(feature, feature_pattern)):
+                        break
+                else:
+                    # not matched
+                    continue
+            else:
+                # if no mapping, print all features at the suggested level
+                level = Priority[note.get('priority', 'recommended')].rpm_name()
+                if level != args.rpm_fileattr:
+                    continue
+
+            if first:
+                print(f';{file}')
+                first = False
+
+            soname = next(iter(note['soname']))  # we take the first — most recommended — soname
+            print(f'{soname}{suffix}')
+
+
 def make_parser():
     p = argparse.ArgumentParser(
         description=__doc__,
@@ -188,9 +245,27 @@ def make_parser():
         help='Generate rpm Recommends for listed features',
     )
     p.add_argument(
+        '--rpm-fileattr',
+        metavar='TYPE',
+        help='Run as rpm fileattr generator for TYPE dependencies',
+    )
+    p.add_argument(
+        '--subpackage',
+        metavar='NAME',
+        default='',
+        help='Current subpackage NAME',
+    )
+    p.add_argument(
+        '--rpm-features',
+        metavar='SUBPACKAGE:FEATURE,SUBPACKAGE:FEATURE',
+        type=lambda s: [x.split(':', maxsplit=1) for x in s.split(',')],
+        action='extend',
+        help='Specify subpackage:feature mapping',
+    )
+    p.add_argument(
         'filenames',
-        nargs='+',
-        metavar='filename',
+        nargs='*',
+        metavar='FILENAME',
         help='Library file to extract notes from',
     )
     p.add_argument(
@@ -207,14 +282,29 @@ def parse_args():
         and not args.sonames
         and args.features is None
         and args.rpm_requires is None
-        and args.rpm_recommends is None):
+        and args.rpm_recommends is None
+        and args.rpm_fileattr is None):
         # Make --raw the default if no action is specified.
         args.raw = True
+
+    if args.rpm_fileattr is not None:
+        if (args.filenames
+            or args.raw
+            or args.features is not None
+            or args.rpm_requires
+            or args.rpm_recommends):
+            raise ValueError('--rpm-generate cannot be combined with most options')
+
+    if args.rpm_fileattr is None and not args.filenames:
+        raise ValueError('At least one positional FILENAME parameter is required')
 
     return args
 
 if __name__ == '__main__':
     args = parse_args()
+
+    if args.rpm_fileattr is not None:
+        sys.exit(rpm_fileattr_generator(args))
 
     elffiles = [ELFFileReader(filename) for filename in args.filenames]
     features = group_by_feature(elffiles)
