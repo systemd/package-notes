@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: MIT-0
+#
+# This file is part of the package-notes package.
+#
+#
+# The spec file for a package can specify which features are listed
+# and at which level, using
+# '--rpm-features=SUBPACKAGE1:FEATURE1,SUBPACKAGE2:FEATURE2' option in
+# the '__dlopen_notes_TYPE_opts' macro, where TYPE is one of
+# 'requires', 'recommends', or 'suggests'. The macro should be declared
+# in the spec file using:
+#   %define __dlopen_notes_TYPE_opts SUBPACKAGE:FEATURE…
+# e.g.
+#   %define __dlopen_notes_recommends_opts *:zstd
+#
+# The option accepts multiple comma-separated pairs, and can also be
+# specified multiple times. Both the subpackage name and feature name
+# can be a glob. If configuration is omitted, the priority recommended
+# in the notes is used.
+#
+# The '--subpackage=SUBPACKAGE' option (inserted below) tells the generator
+# which subpackage is being processed.
+#
+# For example, for a package using compression libraries, we can say
+# that the 'package-libs' subpackage shall carry 'Requires' on all the
+# libraries needed for the 'zstd' feature, all subpackages shall carry
+# 'Recommends' on all the libraries needed for the 'gzip' feature, and
+# the 'package' subpackage shall carry 'Suggests' for any feature
+# matching 'lzma' or 'bzip*'.
+#
+#  %define __dlopen_notes_requires_opts   --rpm-features=package-libs:zstd
+#  %define __dlopen_notes_recommends_opts --rpm-features=*:gzip
+#  %define __dlopen_notes_suggests_opts   --rpm-features=package:lzma,package:bzip*
+#
+# To opt out, undefine the %_dlopen_notes_generator macro:
+#  %undefine _dlopen_notes_generator
+
+%_dlopen_notes_generator   %{_bindir}/dlopen-notes
+
+%__dlopen_notes_requires   %{!?_dlopen_notes_generator:true }%{_dlopen_notes_generator} --subpackage='%{name}' --rpm-fileattr=Requires
+%__dlopen_notes_recommends %{!?_dlopen_notes_generator:true }%{_dlopen_notes_generator} --subpackage='%{name}' --rpm-fileattr=Recommends
+%__dlopen_notes_suggests   %{!?_dlopen_notes_generator:true }%{_dlopen_notes_generator} --subpackage='%{name}' --rpm-fileattr=Suggests
+%__dlopen_notes_protocol   multifile
+%__dlopen_notes_magic      ^.*ELF (32|64)-bit.*$

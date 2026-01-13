@@ -97,6 +97,19 @@ $ dlopen-notes /usr/lib64/systemd/libsystemd-shared-257.so
 ...
 ```
 
+### Using the rpm fileattr generator
+
+The tool that processes package notes can be hooked into the rpm build process
+to automatically generate virtual `Requires`, `Recommends`, and `Suggests` dependencies.
+
+The rpm file attribute mechanism is described in
+[rpm-dependency-generators.7](https://rpm-software-management.github.io/rpm/man/rpm-dependency-generators.7).
+
+This tool implements the 'multifile' protocol:
+it reads the list of files on stdin and outputs a list of virtual dependencies.
+
+See the `rpm/dlopen_notes.attr` file for invocation details and options.
+
 ## Requirements
 * binutils (>= 2.39)
 * mold (>= 1.3.0)
