@@ -154,15 +154,8 @@ def generate_rpm(elffiles, stanza, filter):
                 soname = next(iter(note['soname']))  # we take the first — most recommended — soname
                 yield f"{stanza}: {soname}{suffix}"
 
-def rpm_fileattr_generator(args):
-    if args.rpm_features is not None:
-        if not any(fnmatch.fnmatch(args.subpackage, pattern[0])
-                   for pattern in args.rpm_features):
-            # Current subpackage is not listed, nothing to do.
-            # Consume all input as required by the protocol.
-            sys.stdin.read()
-            return
 
+def rpm_fileattr_generator(args):
     for file in sys.stdin:
         file = file.strip()
         if not file:
@@ -174,23 +167,27 @@ def rpm_fileattr_generator(args):
         first = True
 
         for note in elffile.notes():
-            # Feature name is optional. Allow this to be matched
+            # Feature name is optional. Allow it to be matched
             # by the empty string ('') or a wildcard glob ('*').
             feature = note.get('feature', '')
+            level = None
 
-            if args.rpm_features is not None:
-                for package_pattern,feature_pattern in args.rpm_features:
-                    if (fnmatch.fnmatch(args.subpackage, package_pattern) and
-                        fnmatch.fnmatch(feature, feature_pattern)):
-                        break
-                else:
-                    # not matched
+            # Check if we got a feature level override
+            for package_pattern,feature_pattern,level_spec in args.rpm_features:
+                if not fnmatch.fnmatch(args.subpackage, package_pattern):
                     continue
-            else:
-                # if no mapping, print all features at the suggested level
-                level = Priority[note.get('priority', 'recommended')].rpm_name()
-                if level != args.rpm_fileattr:
-                    continue
+                if fnmatch.fnmatch(feature, feature_pattern):
+                    level = level_spec
+                    break
+
+            if level is None:
+                # if no mapping, check against the level suggested in the binary
+                level = note.get('priority', 'recommended')
+
+            fileattr = Priority[level].rpm_name()
+
+            if fileattr != args.rpm_fileattr:
+                continue
 
             if first:
                 print(f';{file}')
@@ -198,6 +195,27 @@ def rpm_fileattr_generator(args):
 
             soname = next(iter(note['soname']))  # we take the first — most recommended — soname
             print(f'{soname}{suffix}')
+
+
+@listify
+def parse_rpm_feature_spec(s):
+    """
+    The following format is expected:
+         subpackage:feature:level subpackage2:feature2:level
+         *:feature:level
+         # ignored comment
+         otherpackage:otherfeature:level
+         *:badfeature:ignored
+    """
+    for line in s.splitlines():
+        line = line.strip()
+        if line.startswith('#'):
+            continue
+        for word in line.split():
+            a, b, c = word.split(':', maxsplit=2)
+            if c not in {'required', 'recommended', 'suggested', 'ignored'}:
+                raise ValueError(f'Unexpected feature spec {word!r}')
+            yield (a, b, c)
 
 
 def make_parser():
@@ -257,10 +275,11 @@ def make_parser():
     )
     p.add_argument(
         '--rpm-features',
-        metavar='SUBPACKAGE:FEATURE,SUBPACKAGE:FEATURE',
-        type=lambda s: [x.split(':', maxsplit=1) for x in s.split(',')],
+        metavar='SUBPACKAGE:FEATURE:LEVEL…',
+        type=parse_rpm_feature_spec,
         action='extend',
-        help='Specify subpackage:feature mapping',
+        help='Override subpackage:feature:level mapping',
+        default=[],
     )
     p.add_argument(
         'filenames',
