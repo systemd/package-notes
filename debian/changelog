@@ -1,3 +1,19 @@
+package-notes (0.18) unstable; urgency=medium
+
+  [ Arthur Petitpierre ]
+  * Fix type in group_by_feature
+
+  [ Zbigniew Jędrzejewski-Szmek ]
+  * dlopen-notes: group two helper functions together
+  * rpm: add fileattr multifile generator
+  * fakelib: add test for the new fileattr plugin
+  * Rework how rpm fileattr generation is configured
+
+  [ Frédéric Bérat ]
+  * rpm: use a '%{!r: ... }' guard around package notes LDFLAGS
+
+ -- Luca Boccassi <bluca@debian.org>  Tue, 02 Jun 2026 17:16:52 +0100
+
 package-notes (0.17) unstable; urgency=medium
 
   * test: do not fail if order of items changes
