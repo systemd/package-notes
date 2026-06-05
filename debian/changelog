@@ -1,3 +1,9 @@
+package-notes (0.19) unstable; urgency=medium
+
+  * dlopen-notes: make output stable regardless of order of inputs
+
+ -- Luca Boccassi <bluca@debian.org>  Fri, 05 Jun 2026 16:33:59 +0100
+
 package-notes (0.18) unstable; urgency=medium
 
   [ Arthur Petitpierre ]
