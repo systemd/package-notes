@@ -69,13 +69,15 @@ class ELFFileReader:
 
                 yield from j
 
-@dictify
 def group_by_soname(elffiles):
+    sonames = {}
     for elffile in elffiles:
         for element in elffile.notes():
-            priority = element.get('priority', 'recommended')
+            priority = Priority[element.get('priority', 'recommended')]
             for soname in element['soname']:
-                yield soname, priority
+                sonames[soname] = max(sonames.get(soname, priority), priority)
+
+    return sonames
 
 class Priority(enum.Enum):
     suggested   = 1
@@ -84,6 +86,9 @@ class Priority(enum.Enum):
 
     def __lt__(self, other):
         return self.value < other.value
+
+    def __str__(self):
+        return self.name
 
     def rpm_name(self):
         if self == self.__class__.suggested:
