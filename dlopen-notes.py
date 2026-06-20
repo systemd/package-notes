@@ -69,15 +69,17 @@ class ELFFileReader:
 
                 yield from j
 
-def group_by_soname(elffiles):
-    sonames = {}
+def group_alternatives(elffiles):
+    # A note's sonames are alternatives for one dependency (preferred first).
+    # Group them by tuple, merging identical groups at the highest priority.
+    groups = {}
     for elffile in elffiles:
         for element in elffile.notes():
             priority = Priority[element.get('priority', 'recommended')]
-            for soname in element['soname']:
-                sonames[soname] = max(sonames.get(soname, priority), priority)
+            sonames = tuple(element['soname'])
+            groups[sonames] = max(groups.get(sonames, priority), priority)
 
-    return sonames
+    return groups
 
 class Priority(enum.Enum):
     suggested   = 1
@@ -147,17 +149,23 @@ def filter_features(features, filter):
         sys.exit('Some features not found:', ', '.join(missing))
     return ans
 
+def rpm_dependency(sonames, suffix):
+    # Alternative sonames become an rpm boolean "or" dependency.
+    deps = [f'{soname}{suffix}' for soname in sonames]
+    if len(deps) == 1:
+        return deps[0]
+    return '(' + ' or '.join(deps) + ')'
+
 @listify
 def generate_rpm(elffiles, stanza, filter):
     # Produces output like:
     # Requires: libqrencode.so.4()(64bit)
-    # Requires: libzstd.so.1()(64bit)
+    # Requires: (libcrypto.so.4()(64bit) or libcrypto.so.3()(64bit))
     for elffile in elffiles:
         suffix = '()(64bit)' if elffile.elffile.elfclass == 64 else ''
         for note in elffile.notes():
             if note['feature'] in filter or not filter:
-                soname = next(iter(note['soname']))  # we take the first — most recommended — soname
-                yield f"{stanza}: {soname}{suffix}"
+                yield f"{stanza}: {rpm_dependency(note['soname'], suffix)}"
 
 
 def rpm_fileattr_generator(args):
@@ -198,8 +206,7 @@ def rpm_fileattr_generator(args):
                 print(f';{file}')
                 first = False
 
-            soname = next(iter(note['soname']))  # we take the first — most recommended — soname
-            print(f'{soname}{suffix}')
+            print(rpm_dependency(note['soname'], suffix))
 
 
 @listify
@@ -238,7 +245,7 @@ def make_parser():
     p.add_argument(
         '-s', '--sonames',
         action='store_true',
-        help='List all sonames and their priorities, one soname per line',
+        help='List sonames and their priorities, one group of alternatives per line',
     )
     p.add_argument(
         '-f', '--features',
@@ -353,6 +360,6 @@ if __name__ == '__main__':
         print('\n'.join(lines))
 
     if args.sonames:
-        sonames = group_by_soname(elffiles)
-        for soname in sorted(sonames.keys()):
-            print(f"{soname} {sonames[soname]}")
+        groups = group_alternatives(elffiles)
+        for sonames in sorted(groups.keys()):
+            print(f"{' '.join(sonames)} {groups[sonames]}")
