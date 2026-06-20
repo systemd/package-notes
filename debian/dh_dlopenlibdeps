@@ -56,9 +56,9 @@ on_pkgs_in_parallel {
 		my $tmp = tmpdir($package);
 		my $ext = pkgext($package);
 		my (@filelist);
-		my %required_packages;
-		my %recommended_packages;
-		my %suggested_packages;
+		my %required_deps;
+		my %recommended_deps;
+		my %suggested_deps;
 
 		# Generate a list of ELF binaries in the package, ignoring any we were told to exclude.
 		my $find_options='';
@@ -76,61 +76,72 @@ on_pkgs_in_parallel {
 		}
 
 		if (@filelist) {
-			my $required_sonames = '';
-			my $recommended_sonames = '';
-			my $suggested_sonames = '';
+			# Each line is a group of alternative sonames (preferred first)
+			# followed by the priority, to become a "pkg1 | pkg2" dependency.
+			my @groups;
+			my %all_sonames;
 
 			my $sonames = `dlopen-notes --sonames @filelist`;
 			foreach my $line (split(/\n/, $sonames)) {
-				my ($soname, $priority) = split(' ', $line, 2);
+				my @fields = split(' ', $line);
+				next if @fields < 2;
+				my $priority = pop @fields;
+				if ($priority ne 'required' && $priority ne 'recommended' && $priority ne 'suggested') {
+					warning("Unknown priority $priority for @fields");
+					next;
+				}
+				push @groups, { priority => $priority, sonames => [@fields] };
+				$all_sonames{$_} = 1 foreach @fields;
+			}
 
-				if ($priority eq 'required') {
-					$required_sonames .= " $soname";
-				} elsif ($priority eq 'recommended') {
-					$recommended_sonames .= " $soname";
-				} elsif ($priority eq 'suggested') {
-					$suggested_sonames .= " $soname";
+			# Map each soname to its package(s) with a single query, matching
+			# dpkg-query's substring search to preserve the grouping.
+			my %soname_packages;
+			if (%all_sonames) {
+				my @query = sort keys %all_sonames;
+				my $dpkg_query = `dpkg-query --search -- @query`;
+				foreach my $line (split(/\n/, $dpkg_query)) {
+					chomp $line;
+					if ($line =~ m/^local diversion |^diversion by/) {
+						next;
+					}
+					# Format: "pkg[:arch][, pkg2...]: /path/to/file"
+					next unless $line =~ m/^(.*?): (\/.*)$/;
+					my ($pkgfield, $path) = ($1, $2);
+
+					my @pkgs;
+					foreach my $pkg (split(/,\s*/, $pkgfield)) {
+						$pkg =~ s/:.*//;
+						push @pkgs, $pkg if $pkg =~ m/^[-a-z0-9+.]+$/;
+					}
+					next unless @pkgs;
+
+					foreach my $soname (keys %all_sonames) {
+						if (index($path, $soname) >= 0) {
+							push @{$soname_packages{$soname}}, @pkgs;
+						}
+					}
+				}
+			}
+
+			# Build a "pkg1 | pkg2" alternative dependency for each group.
+			foreach my $group (@groups) {
+				my @alternatives;
+				my %seen;
+				foreach my $soname (@{$group->{sonames}}) {
+					foreach my $pkg (@{$soname_packages{$soname} // []}) {
+						push @alternatives, $pkg unless $seen{$pkg}++;
+					}
+				}
+				next unless @alternatives;
+
+				my $dep = join(" | ", @alternatives);
+				if ($group->{priority} eq 'required') {
+					$required_deps{$dep} = 1;
+				} elsif ($group->{priority} eq 'recommended') {
+					$recommended_deps{$dep} = 1;
 				} else {
-					warning("Unknown priority $priority for $soname");
-				}
-			}
-
-			if ($required_sonames) {
-				my $dpkg_query = `dpkg-query --search -- $required_sonames`;
-				foreach my $line (split(/\n/, $dpkg_query)) {
-					chomp $line;
-					if ($line =~ m/^local diversion |^diversion by/) {
-						next;
-					}
-					if ($line =~ m/^([-a-z0-9+.]+):/) {
-						$required_packages{$1} = 1;
-					}
-				}
-			}
-
-			if ($recommended_sonames) {
-				my $dpkg_query = `dpkg-query --search -- $recommended_sonames`;
-				foreach my $line (split(/\n/, $dpkg_query)) {
-					chomp $line;
-					if ($line =~ m/^local diversion |^diversion by/) {
-						next;
-					}
-					if ($line =~ m/^([-a-z0-9+.]+):/) {
-						$recommended_packages{$1} = 1;
-					}
-				}
-			}
-
-			if ($suggested_sonames) {
-				my $dpkg_query = `dpkg-query --search -- $suggested_sonames`;
-				foreach my $line (split(/\n/, $dpkg_query)) {
-					chomp $line;
-					if ($line =~ m/^local diversion |^diversion by/) {
-						next;
-					}
-					if ($line =~ m/^([-a-z0-9+.]+):/) {
-						$suggested_packages{$1} = 1;
-					}
+					$suggested_deps{$dep} = 1;
 				}
 			}
 		}
@@ -138,9 +149,9 @@ on_pkgs_in_parallel {
 		# Always write the substvars file, even if it's empty, so that the variables are defined and
 		# there are no warnings when using them in the control file.
 		open(SV, ">>debian/${ext}substvars") || error("open debian/${ext}substvars: $!");
-		print SV "dlopen:Depends=" . join(", ", sort keys %required_packages) . "\n";
-		print SV "dlopen:Recommends=" . join(", ", sort keys %recommended_packages) . "\n";
-		print SV "dlopen:Suggests=" . join(", ", sort keys %suggested_packages) . "\n";
+		print SV "dlopen:Depends=" . join(", ", sort keys %required_deps) . "\n";
+		print SV "dlopen:Recommends=" . join(", ", sort keys %recommended_deps) . "\n";
+		print SV "dlopen:Suggests=" . join(", ", sort keys %suggested_deps) . "\n";
 		close(SV);
 	}
 };
