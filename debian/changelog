@@ -1,3 +1,9 @@
+package-notes (0.20) unstable; urgency=medium
+
+  * Generate alternative dependencies for a note's multiple sonames
+
+ -- Luca Boccassi <bluca@debian.org>  Sun, 21 Jun 2026 17:15:49 +0100
+
 package-notes (0.19) unstable; urgency=medium
 
   * dlopen-notes: make output stable regardless of order of inputs
